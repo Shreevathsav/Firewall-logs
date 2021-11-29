@@ -376,6 +376,7 @@ public class SomeDailyJob implements Runnable {
 
         // System.out.println(str);
         db.close();
+        data.clear();
         File test = new File(System.getProperty("user.dir") + "/_Windows____Firewall__logs.db");
         System.out.println(test.exists());
         System.out.println("work done");
