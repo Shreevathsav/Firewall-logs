@@ -14,7 +14,6 @@ import java.util.List;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import javax.servlet.annotation.WebServlet;
 
@@ -117,10 +116,18 @@ public class APIClass extends HttpServlet {
                                 "C:\\Windows\\System32\\LogFiles\\Firewall\\pfirewall.log");
 
                         BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
+                        int skip;
+                        List<String> tempLines = br.lines().toList();
+                        System.out.println(tempLines.size());
+                        if ((tempLines.size() - 5) < index.size()) {
+                            skip = 0;
+                        } else {
+                            skip = 5 + index.size() - 1;
+                        }
+                        // tempLines.clear();
+                        br.close();
+                        List<String> str = tempLines.subList(skip, tempLines.size());
 
-                        Stream<String> lines = br.lines().skip(5 + index.size() - 1);
-
-                        List<String> str = lines.toList();
                         for (String strLine : str) {
                             int flag = 1;
                             String[] splited = strLine.split("\\s+");
