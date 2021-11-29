@@ -49,17 +49,6 @@ public class APIClass extends HttpServlet {
         List<String> ipSource = db.indexTreeList("Source", Serializer.STRING).createOrOpen();
         List<String> ipDestination = db.indexTreeList("Destination", Serializer.STRING).createOrOpen();
         HashMap<String, List<String>> firewallLogs = new HashMap<String, List<String>>();
-        List<String> asn = (List<String>) (Object) Arrays.asList(db.get("ASN"));
-        List<String> ipLogs = (List<String>) (Object) Arrays.asList(db.get("IP"));
-        List<String> hashes = (List<String>) (Object) Arrays.asList(db.get("Hashes"));
-        List<String> urls = (List<String>) (Object) Arrays.asList(db.get("url"));
-        List<String> domain = (List<String>) (Object) Arrays.asList(db.get("Domain"));
-
-        firewallLogs.put("ASN", asn);
-        firewallLogs.put("url", urls);
-        firewallLogs.put("Domain", domain);
-        firewallLogs.put("Hashes", hashes);
-        firewallLogs.put("IP", ipLogs);
 
         String status = null;
         File file = new File("C:\\Windows\\System32\\LogFiles\\Firewall\\pfirewall.log");
@@ -97,6 +86,18 @@ public class APIClass extends HttpServlet {
             } else {
 
                 if (currentPage.equals("1")) {
+                    List<String> asn = (List<String>) (Object) Arrays.asList(db.get("ASN"));
+                    List<String> ipLogs = (List<String>) (Object) Arrays.asList(db.get("IP"));
+                    List<String> hashes = (List<String>) (Object) Arrays.asList(db.get("Hashes"));
+                    List<String> urls = (List<String>) (Object) Arrays.asList(db.get("url"));
+                    List<String> domain = (List<String>) (Object) Arrays.asList(db.get("Domain"));
+
+                    firewallLogs.put("ASN", asn);
+                    firewallLogs.put("url", urls);
+                    firewallLogs.put("Domain", domain);
+                    firewallLogs.put("Hashes", hashes);
+                    firewallLogs.put("IP", ipLogs);
+
                     long st = file.lastModified();
                     System.out.println(st);
                     System.out.println("added ipDBlogs");

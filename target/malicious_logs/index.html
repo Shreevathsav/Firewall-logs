@@ -232,7 +232,10 @@
         let totalPages = parseInt(d.totalPages[0]);
         console.log(totalPages);
         getPages(totalPages);
-        getStixData(d);
+        if(d.IP!=undefined){
+          getStixData(d);
+        }
+        
       }
       
       firewall_logs(d);
