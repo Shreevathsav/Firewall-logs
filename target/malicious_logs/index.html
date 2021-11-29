@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firewall-Logs</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js">
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css" integrity="sha512-YWzhKL2whUzgiheMoBFwW8CKV4qpHQAEuvilg9FAn5VJUDwKZZxkJNuGM4XkWuk94WCrrwslk8yWNGmY1EduTA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+
+</head>
+<body>
+ 
+
+  
+
+    <nav class="navbar navbar-dark">
+        <div class="container-fluid">
+          <a class="navbar-brand"><i class="fas fa-file-lines"></i> Firewall logs</a>
+        </div>
+      </nav>
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="log-tab" data-bs-toggle="tab" data-bs-target="#log-container" type="button" role="tab" aria-controls="home" aria-selected="true">FireWall-Logs</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="db-tab" data-bs-toggle="tab" data-bs-target="#db" type="button" role="tab" aria-controls="profile" aria-selected="false">MapDB-Data</button>
+        </li>
+      </ul>
+      <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="log-container" role="tabpanel" aria-labelledby="home-tab">
+            <!-- <div class="d-flex flex-column align-items-stretch flex-shrink-0 bg-white" style="width: 380px;">
+              <a href="/" class="d-flex align-items-center flex-shrink-0 p-3 link-dark text-decoration-none border-bottom">
+                <svg class="bi me-2" width="30" height="24"><use xlink:href="#bootstrap"/></svg>
+                <span class="fs-5 fw-semibold">List group</span>
+              </a>
+              <div class="list-group list-group-flush border-bottom scrollarea">
+                <a href="#" class="list-group-item list-group-item-action active py-3 lh-tight" aria-current="true">
+                  <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">List group item heading</strong>
+                    <small>Wed</small>
+                  </div>
+                  <div class="col-10 mb-1 small">Some placeholder content in a paragraph below the heading and date.</div>
+                </a>
+                <a href="#" class="list-group-item list-group-item-action py-3 lh-tight">
+                  <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">List group item heading</strong>
+                    <small class="text-muted">Tues</small>
+                  </div>
+                  <div class="col-10 mb-1 small">Some placeholder content in a paragraph below the heading and date.</div>
+                </a>
+                <a href="#" class="list-group-item list-group-item-action py-3 lh-tight">
+                  <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">List group item heading</strong>
+                    <small class="text-muted">Mon</small>
+                  </div>
+                  <div class="col-10 mb-1 small">Some placeholder content in a paragraph below the heading and date.</div>
+                </a>
+          
+                <a href="#" class="list-group-item list-group-item-action py-3 lh-tight" aria-current="true">
+                  <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">List group item heading</strong>
+                    <small class="text-muted">Wed</small>
+                  </div>
+                  <div class="col-10 mb-1 small">Some placeholder content in a paragraph below the heading and date.</div>
+                </a>
+                <a href="#" class="list-group-item list-group-item-action py-3 lh-tight">
+                  <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">List group item heading</strong>
+                    <small class="text-muted">Tues</small>
+                  </div>
+                  <div class="col-10 mb-1 small">Some placeholder content in a paragraph below the heading and date.</div>
+                </a>
+                <a href="#" class="list-group-item list-group-item-action py-3 lh-tight">
+                  <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">List group item heading</strong>
+                    <small class="text-muted">Mon</small>
+                  </div>
+                  <div class="col-10 mb-1 small">Some placeholder content in a paragraph below the heading and date.</div>
+                </a>
+                <a href="#" class="list-group-item list-group-item-action py-3 lh-tight" aria-current="true">
+                  <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">List group item heading</strong>
+                    <small class="text-muted">Wed</small>
+                  </div>
+                  <div class="col-10 mb-1 small">Some placeholder content in a paragraph below the heading and date.</div>
+                </a>
+                <a href="#" class="list-group-item list-group-item-action py-3 lh-tight">
+                  <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">List group item heading</strong>
+                    <small class="text-muted">Tues</small>
+                  </div>
+                  <div class="col-10 mb-1 small">Some placeholder content in a paragraph below the heading and date.</div>
+                </a>
+                <a href="#" class="list-group-item list-group-item-action py-3 lh-tight">
+                  <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">List group item heading</strong>
+                    <small class="text-muted">Mon</small>
+                  </div>
+                  <div class="col-10 mb-1 small">Some placeholder content in a paragraph below the heading and date.</div>
+                </a>
+                <a href="#" class="list-group-item list-group-item-action py-3 lh-tight" aria-current="true">
+                  <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">List group item heading</strong>
+                    <small class="text-muted">Wed</small>
+                  </div>
+                  <div class="col-10 mb-1 small">Some placeholder content in a paragraph below the heading and date.</div>
+                </a>
+                <a href="#" class="list-group-item list-group-item-action py-3 lh-tight">
+                  <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">List group item heading</strong>
+                    <small class="text-muted">Tues</small>
+                  </div>
+                  <div class="col-10 mb-1 small">Some placeholder content in a paragraph below the heading and date.</div>
+                </a>
+                <a href="#" class="list-group-item list-group-item-action py-3 lh-tight">
+                  <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">List group item heading</strong>
+                    <small class="text-muted">Mon</small>
+                  </div>
+                  <div class="col-10 mb-1 small">Some placeholder content in a paragraph below the heading and date.</div>
+                </a>
+              </div>
+            </div> -->
+          <div id="header" class="error">
+            
+            
+              
+              <div>
+                <center>
+                  <h2>Firewall Logs</h2>
+                </center>
+              </div>
+        
+            
+            <div>
+                <p>No of logs per page</p>
+                <select name="noOfPages" id="noOfPages">
+                  <option value="50" selected>50</option>
+                  <option value="100">100</option>
+                  <option value="200">200</option>
+                </select>
+               <div class="pagination justify-content-center">
+
+               </div>
+            </div>
+          </div>
+          <div id = "log">
+            
+            <br>
+            <br>
+            <center>
+              <div class="error" id="error-icon">
+                <i class="fas fa-exclamation-triangle"></i><br>
+              </div>
+              <div class="error" id="display-error">
+                
+              </div>
+            <br>
+            </center>
+            
+           
+          </div>
+          <div hidden id="spinner"></div>
+        </div>
+        <div class="tab-pane fade" id="db" role="tabpanel" aria-labelledby="profile-tab">
+          <div class="container">
+            <center>
+             <canvas id="pie" style="width:100%;max-width:700px"></canvas>
+            </center>
+                 
+         </div>
+          <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="asn-tab" data-bs-toggle="tab" data-bs-target="#asn" type="button" role="tab" aria-controls="home" aria-selected="true">ASN</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="ip-tab" data-bs-toggle="tab" data-bs-target="#ip" type="button" role="tab" aria-controls="profile" aria-selected="false">IP-Adress</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="url-tab" data-bs-toggle="tab" data-bs-target="#url" type="button" role="tab" aria-controls="home" aria-selected="false">Urls</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="domain-tab" data-bs-toggle="tab" data-bs-target="#domain" type="button" role="tab" aria-controls="profile" aria-selected="false">Domain</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="hashes-tab" data-bs-toggle="tab" data-bs-target="#hashes" type="button" role="tab" aria-controls="profile" aria-selected="false">Hashes</button>
+            </li>
+
+          </ul>
+          <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="asn" role="tabpanel" aria-labelledby="asn-tab"></div>
+            <div class="tab-pane fade" id="ip" role="tabpanel" aria-labelledby="ip-tab"></div>
+            <div class="tab-pane fade" id="url" role="tabpanel" aria-labelledby="url-tab"></div>
+            <div class="tab-pane fade" id="domain" role="tabpanel" aria-labelledby="domain-tab"></div>
+            <div class="tab-pane fade" id="hashes" role="tabpanel" aria-labelledby="hashes-tab"></div>
+          </div>
+        </div>
+      </div>
+    
+      <script>
+        let recordsPerPage = '50';
+        const spinner = document.getElementById("spinner");
+          window.onload = function onLoad(){
+            console.log("spinner");
+        spinner.removeAttribute('hidden');
+            onLoadFinished();
+     }
+     
+     function onLoadFinished(){
+      
+      let url='http://localhost:8080/malicious_logs/FirewallLogs?rcrdsPerPage='+recordsPerPage+'&currentPage=1'; 
+      fetch(url)  
+    .then(response => response.json())
+    .then(d=>{
+      if(d.status[0]=="200"){
+        
+        div = document.getElementById("log")
+  div.innerHTML=" ";
+ 
+      
+        let totalPages = parseInt(d.totalPages[0]);
+        console.log(totalPages);
+        getPages(totalPages);
+        getStixData(d);
+      }
+      
+      firewall_logs(d);
+     
+    })
+    
+     }
+     async function firewall_logs(d){
+
+      let res = await d;
+      console.log(res);
+      
+      spinner.setAttribute('hidden', '');
+      
+      
+      if(res.status[0]!="200"){
+        
+        
+        handleError(res);
+        
+      }
+      else{
+        var dupTable = document.createElement('table');
+        dupTable.setAttribute('id', 'logTable');  
+        heading = [
+          
+          "Date",
+          "Time",
+          "Source-IP",
+          "Destination-IP",
+          "Status"
+        ];
+        var tr = dupTable.insertRow(-1);
+        for(let i=0;i<5;i++){
+        var th = document.createElement('th');  
+        th.innerHTML = heading[i];
+        tr.appendChild(th);
+        }
+        var div = document.getElementById('log');
+        var rowCnt = dupTable.rows.length;    
+        var tr = dupTable.insertRow(rowCnt);
+        var tbody = document.createElement('tbody');
+        if(res.IPDest.length==0)
+        {
+          var row = document.createElement("tr");
+            var cell = document.createElement("td");
+              h4 = document.createElement("h4");
+              h4.innerText="No Logs";
+              cell.appendChild(h4);
+              row.appendChild(cell);
+            var cell1 = document.createElement("td");
+            h4 = document.createElement('h4');
+            h4.innerText = "-";
+            cell1.appendChild(h4);
+            row.appendChild(cell1);
+            tbody.appendChild(row);
+            var cell1 = document.createElement("td");
+            h4 = document.createElement('h4');
+            h4.innerText = "-";
+            cell1.appendChild(h4);
+            row.appendChild(cell1);
+            tbody.appendChild(row);
+            var cell1 = document.createElement("td");
+            h4 = document.createElement('h4');
+            h4.innerText = "-";
+            cell1.appendChild(h4);
+            row.appendChild(cell1);
+            tbody.appendChild(row);
+            var cell1 = document.createElement("td");
+            h4 = document.createElement('h4');
+            h4.innerText = "-";
+            cell1.appendChild(h4);
+            row.appendChild(cell1);
+            tbody.appendChild(row);
+        }
+        else{
+          for (var i =res.IPDest.length-1 ; i>=0; i--) {
+            var row = document.createElement("tr");
+            var cell2 = document.createElement("td");
+              h1 = document.createElement("h4");
+              h1.innerHTML=res.date[i];
+              cell2.appendChild(h1);
+              row.appendChild(cell2)
+            var cell = document.createElement("td");
+              h2 = document.createElement("h4");
+              h2.innerHTML=res.time[i];
+              cell.appendChild(h2);
+              row.appendChild(cell);
+            var cell1 = document.createElement("td");
+            h3 = document.createElement('h4');
+            h3.innerText = res.IPSrc[i];
+            cell1.appendChild(h3);
+            row.appendChild(cell1);
+            var cell3 = document.createElement("td");
+              h4 = document.createElement("h4");
+              h4.innerHTML=res.IPDest[i];
+              cell3.appendChild(h4);
+              row.appendChild(cell3);
+            var cell4 = document.createElement("td");
+            h5 = document.createElement("h4");
+            if(res.FLAG[i]=="1"){
+                h5.innerHTML='<i class="fas fa-exclamation-triangle" aria-hidden="true"></i>';
+            }
+            else{
+                h5.innerHTML='<i class="fas fa-check-circle" aria-hidden="true"></i>';
+            }
+              cell4.appendChild(h5);
+              row.appendChild(cell4);
+              
+              if(res.FLAG[i]=="1"){
+                cell.style.color = "#FF0000";
+                cell1.style.color = "#FF0000"
+                cell2.style.color = "#FF0000";
+                cell3.style.color = "#FF0000";
+                cell4.style.color = "#FF0000";
+              }
+              else{
+                cell.style.color = "#4E9F3D";
+                cell1.style.color = "#4E9F3D";
+                cell2.style.color = "#4E9F3D";
+                cell3.style.color = "#4E9F3D";
+                cell4.style.color = "#4E9F3D";
+              }
+              row.classList.add("content");
+              tbody.appendChild(row); 
+          }
+        }
+        tbody.setAttribute("id","tbody");
+      dupTable.appendChild(tbody);
+      dupTable.classList.add("table");
+      dupTable.classList.add("table-striped");
+      dupTable.classList.add("table-hover");
+      div.innerHTML=" ";
+      let head = document.getElementById("header");
+      head.classList.remove("error");
+      // div.appendChild(hr);
+
+        div.appendChild(dupTable);
+        
+      
+      }
+       
+     }
+
+    //  function page(){
+    //    pag = document.getElementsByClassName("pagination");
+
+    //  }
+     async function handleError(res){
+      error = document.getElementById("display-error");
+      errorIcon = document.getElementById("error-icon");
+       if(res.status[0]=="402"){
+          
+          error.innerText="Turn on Windows firewall logging\nSteps:\n1.Go to Start and open Control Panel. Select System and Security > Windows Defender Firewall. Choose Turn Windows Firewall on or off. Select Turn on Windows Firewall for domain, private, and public network settings.\n2.Open Windows Firewall with Advanced Security. Right-Click on Windows Firewall with Advanced Security and go to Properties.\n3.Click domain/ private/public(based on your network)  > Logging > Customize\n4.Go under “Log Dropped Packets” and switch to Yes.\n5.Go under “Log Sucessfull Packets” and switch to Yes.\n6.Press ok.\n\nThe default location of file would be \" %systemroot%\\system32\n\\LogFiles\\Firewall\n\\pfirewall.log\"";
+          error.classList.remove("error");
+          errorIcon.classList.remove("error");
+       }
+       else if(res.status[0]=="401"){
+        
+          error.innerText="Run the web app as administrator";
+          error.classList.remove("error");
+          errorIcon.classList.remove("error");
+       }
+       else if(res.status[0]=="400"){
+        error.innerText="Run the web app as administrator\n\nTurn on Windows firewall logging\nSteps:\n1.Go to Start and open Control Panel. Select System and Security > Windows Defender Firewall. Choose Turn Windows Firewall on or off. Select Turn on Windows Firewall for domain, private, and public network settings.\n2.Open Windows Firewall with Advanced Security. Right-Click on Windows Firewall with Advanced Security and go to Properties.\n3.Click domain/ private/public(based on your network) > Logging > Customize\n4.Go under “Log Dropped Packets” and switch to Yes.\n5.Go under “Log Sucessfull Packets” and switch to Yes.\n6.Press ok.\n\nThe default location of file would be \" %systemroot%\\system32\n\\LogFiles\\Firewall\n\\pfirewall.log\"";
+          error.classList.remove("error");
+          errorIcon.classList.remove("error");
+       }
+       else{
+       
+          error.innerText="Wait for few minutes and then refresh the website!";
+          error.classList.remove("error");
+          errorIcon.classList.remove("error");
+       }
+     }
+
+     async function getStixData(stixData){
+      let stix = stixData
+      console.log(stix.ASN[0][0]);
+      var xValues = ["ASN", "IP-Address", "Urls", "Domains", "Hashes"];
+var yValues = [stix.ASN[0].length, stix.IP[0].length, stix.url[0].length, stix.Domain[0].length, stix.Hashes[0].length];
+var barColors = ["red", "green","blue","orange","brown"];
+
+      new Chart("pie", {
+  type: "pie",
+  data: {
+    labels: xValues,
+    datasets: [{
+      backgroundColor: barColors,
+      data: yValues
+    }]
+  },
+  options: {
+    title: {
+      display: true,
+      text: "Stix Data"
+    }
+  }
+});
+
+var asnTable = document.createElement('table');
+        asnTable.setAttribute('id', 'asnTable');  
+        heading = [
+          
+          "ASN",
+          
+        ];
+        var tr = asnTable.insertRow(-1);
+        for(let i=0;i<1;i++){
+        var th = document.createElement('th');  
+        th.innerHTML = heading[i];
+        tr.appendChild(th);
+        }
+        var div1 = document.getElementById('asn');
+        var rowCnt = asnTable.rows.length;    
+        var tr = asnTable.insertRow(rowCnt);
+        var tbody = document.createElement('tbody');
+        if(stix.ASN[0].length==0)
+        {
+          var row = document.createElement("tr");
+            var cell = document.createElement("td");
+              h4 = document.createElement("h4");
+              h4.innerText="No Logs";
+              cell.appendChild(h4);
+              row.appendChild(cell);
+           
+            tbody.appendChild(row);
+        }
+        else{
+          for (var i =stix.ASN[0].length-1 ; i>=0; i--) {
+            var row = document.createElement("tr");
+            var cell2 = document.createElement("td");
+              h1 = document.createElement("h4");
+              h1.innerHTML=stix.ASN[0][i];
+              cell2.appendChild(h1);
+              row.appendChild(cell2)
+         
+              tbody.appendChild(row); 
+          }
+        }
+      asnTable.appendChild(tbody);
+      asnTable.classList.add("table");
+      asnTable.classList.add("table-striped");
+      asnTable.classList.add("table-hover");
+      div1.innerHTML=" ";
+        div1.appendChild(asnTable);
+
+        var ipTable = document.createElement('table');
+        ipTable.setAttribute('id', 'ipTable');  
+        heading = [
+          
+          "IP-Address",
+          
+        ];
+        var tr = ipTable.insertRow(-1);
+        for(let i=0;i<1;i++){
+        var th = document.createElement('th');  
+        th.innerHTML = heading[i];
+        tr.appendChild(th);
+        }
+        var div2 = document.getElementById('ip');
+        var rowCnt = ipTable.rows.length;    
+        var tr = ipTable.insertRow(rowCnt);
+        var tbody = document.createElement('tbody');
+        if(stix.IP[0].length==0)
+        {
+          var row = document.createElement("tr");
+            var cell = document.createElement("td");
+              h4 = document.createElement("h4");
+              h4.innerText="No Logs";
+              cell.appendChild(h4);
+              row.appendChild(cell);
+           
+            tbody.appendChild(row);
+        }
+        else{
+          for (var i =stix.IP[0].length-1 ; i>=0; i--) {
+            var row = document.createElement("tr");
+            var cell2 = document.createElement("td");
+              h1 = document.createElement("h4");
+              h1.innerHTML=stix.IP[0][i];
+              cell2.appendChild(h1);
+              row.appendChild(cell2)
+         
+              tbody.appendChild(row); 
+          }
+        }
+      ipTable.appendChild(tbody);
+      ipTable.classList.add("table");
+      ipTable.classList.add("table-striped");
+      ipTable.classList.add("table-hover");
+      div2.innerHTML=" ";
+        div2.appendChild(ipTable);
+
+        var urlTable = document.createElement('table');
+        urlTable.setAttribute('id', 'urlTable');  
+        heading = [
+          "URLs",
+        ];
+        var tr = urlTable.insertRow(-1);
+        for(let i=0;i<1;i++){
+        var th = document.createElement('th');  
+        th.innerHTML = heading[i];
+        tr.appendChild(th);
+        }
+        var div3 = document.getElementById('url');
+        var rowCnt = urlTable.rows.length;    
+        var tr = urlTable.insertRow(rowCnt);
+        var tbody = document.createElement('tbody');
+        if(stix.url[0].length==0)
+        {
+          var row = document.createElement("tr");
+            var cell = document.createElement("td");
+              h4 = document.createElement("h4");
+              h4.innerText="No Logs";
+              cell.appendChild(h4);
+              row.appendChild(cell);
+           
+            tbody.appendChild(row);
+        }
+        else{
+          for (var i =stix.url[0].length-1 ; i>=0; i--) {
+            var row = document.createElement("tr");
+            var cell2 = document.createElement("td");
+              h1 = document.createElement("h4");
+              h1.innerHTML=stix.url[0][i];
+              cell2.appendChild(h1);
+              row.appendChild(cell2);
+              tbody.appendChild(row); 
+          }
+        }
+      urlTable.appendChild(tbody);
+      urlTable.classList.add("table");
+      urlTable.classList.add("table-striped");
+      urlTable.classList.add("table-hover");
+      div3.innerHTML=" ";
+        div3.appendChild(urlTable);
+
+        var domTable = document.createElement('table');
+        domTable.setAttribute('id', 'domainTable');  
+        heading = [
+          
+          "Domain",
+          
+        ];
+        var tr = domTable.insertRow(-1);
+        for(let i=0;i<1;i++){
+        var th = document.createElement('th');  
+        th.innerHTML = heading[i];
+        tr.appendChild(th);
+        }
+        var div4 = document.getElementById('domain');
+        var rowCnt = domTable.rows.length;    
+        var tr = domTable.insertRow(rowCnt);
+        var tbody = document.createElement('tbody');
+        if(stix.Domain[0].length==0)
+        {
+          var row = document.createElement("tr");
+            var cell = document.createElement("td");
+              h4 = document.createElement("h4");
+              h4.innerText="No Logs";
+              cell.appendChild(h4);
+              row.appendChild(cell);
+           
+            tbody.appendChild(row);
+        }
+        else{
+          for (var i =stix.Domain[0].length-1 ; i>=0; i--) {
+            var row = document.createElement("tr");
+            var cell2 = document.createElement("td");
+              h1 = document.createElement("h4");
+              h1.innerHTML=stix.Domain[0][i];
+              cell2.appendChild(h1);
+              row.appendChild(cell2)
+         
+              tbody.appendChild(row); 
+          }
+        }
+      domTable.appendChild(tbody);
+      domTable.classList.add("table");
+      domTable.classList.add("table-striped");
+      domTable.classList.add("table-hover");
+      div4.innerHTML=" ";
+        div4.appendChild(domTable);
+
+        var hashTable = document.createElement('table');
+        hashTable.setAttribute('id', 'hashesTable');  
+        heading = [
+          
+          "Hashes",
+          
+        ];
+        var tr = hashTable.insertRow(-1);
+        for(let i=0;i<1;i++){
+        var th = document.createElement('th');  
+        th.innerHTML = heading[i];
+        tr.appendChild(th);
+        }
+        var div5 = document.getElementById('hashes');
+        var rowCnt = hashTable.rows.length;    
+        var tr = hashTable.insertRow(rowCnt);
+        var tbody = document.createElement('tbody');
+        if(stix.Hashes[0].length==0)
+        {
+          var row = document.createElement("tr");
+            var cell = document.createElement("td");
+              h4 = document.createElement("h4");
+              h4.innerText="No Logs";
+              cell.appendChild(h4);
+              row.appendChild(cell);
+           
+            tbody.appendChild(row);
+        }
+        else{
+          for (var i =stix.Hashes[0].length-1 ; i>=0; i--) {
+            var row = document.createElement("tr");
+            var cell2 = document.createElement("td");
+              h1 = document.createElement("h4");
+              h1.innerHTML=stix.Hashes[0][i];
+              cell2.appendChild(h1);
+              row.appendChild(cell2)
+         
+              tbody.appendChild(row); 
+          }
+        }
+      hashTable.appendChild(tbody);
+      hashTable.classList.add("table");
+      hashTable.classList.add("table-striped");
+      hashTable.classList.add("table-hover");
+      div5.innerHTML=" ";
+        div5.appendChild(hashTable);
+     }
+     let select = document.getElementById("noOfPages");
+     select.onchange=()=>{
+  console.log(select.value);
+  recordsPerPage = select.value;
+  onLoadFinished();
+  }
+
+
+
+function getPageList(totalPages, page, maxLength) {
+    if (maxLength < 5) throw "maxLength must be at least 5";
+
+    function range(start, end) {
+        return Array.from(Array(end - start + 1), (_, i) => i + start); 
+    }
+
+    var sideWidth = maxLength < 9 ? 1 : 2;
+    var leftWidth = (maxLength - sideWidth*2 - 3) >> 1;
+    var rightWidth = (maxLength - sideWidth*2 - 2) >> 1;
+    if (totalPages <= maxLength) {
+        // no breaks in list
+        return range(1, totalPages);
+    }
+    if (page <= maxLength - sideWidth - 1 - rightWidth) {
+        // no break on left of page
+        return range(1, maxLength - sideWidth - 1)
+            .concat(0, range(totalPages - sideWidth + 1, totalPages));
+    }
+    if (page >= totalPages - sideWidth - 1 - rightWidth) {
+        // no break on right of page
+        return range(1, sideWidth)
+            .concat(0, range(totalPages - sideWidth - 1 - rightWidth - leftWidth, totalPages));
+    }
+    // Breaks on both sides
+    return range(1, sideWidth)
+        .concat(0, range(page - leftWidth, page + rightWidth),
+                0, range(totalPages - sideWidth + 1, totalPages));
+}
+
+function getPages (totalPages) {
+    
+    var totalPages = totalPages;
+    var paginationSize = 7; 
+    var currentPage;
+
+    function showPage(whichPage) {
+        if (whichPage < 1 || whichPage > totalPages) return false;
+        currentPage = whichPage;
+                    
+        $(".pagination li").slice(1, -1).remove();
+        getPageList(totalPages, currentPage, paginationSize).forEach( item => {
+            $("<li>").addClass("page-item")
+                     .addClass(item ? "current-page" : "disabled")
+                     .toggleClass("active", item === currentPage).append(
+                $("<a>").addClass("page-link").attr({
+                    href: "javascript:void(0)"}).text(item || "...").click(function(){
+                      let pageNo = $(this).text();
+                      getData(pageNo);
+                    })
+            ).insertBefore("#next");
+        });
+        
+        $("#prev").toggleClass("disabled", currentPage === 1);
+        $("#next").toggleClass("disabled", currentPage === totalPages);
+        return true;
+    }
+
+    
+    $(".pagination").append(
+        $("<li>").addClass("page-item").attr({ id: "prev" }).append(
+            $("<a>").addClass("page-link").attr({
+                href: "javascript:void(0)"}).text("Prev")
+        ),
+        $("<li>").addClass("page-item").attr({ id: "next" }).append(
+            $("<a>").addClass("page-link").attr({
+                href: "javascript:void(0)"}).text("Next")
+        )
+    );
+    
+    $("#tbody").show();
+    showPage(1);
+
+        
+    $(document).on("click", ".pagination li.current-page:not(.active)", function () {
+        return showPage(+$(this).text());
+    });
+    $("#next").on("click", function () {
+        showPage(currentPage+1);
+        let currentPageNo = (currentPage).toString();
+        getData(currentPageNo);
+    });
+
+    $("#prev").on("click", function () {
+        showPage(currentPage-1);
+        let currentPageNo = (currentPage).toString();
+        getData(currentPageNo);
+
+    });
+    
+}
+
+function getData(item){
+  div = document.getElementById("log")
+  div.innerHTML=" ";
+  spinner.removeAttribute('hidden');
+console.log(item);
+let url='http://localhost:8080/malicious_logs/FirewallLogs?rcrdsPerPage='+recordsPerPage+'&currentPage='+item;
+console.log(url);
+fetch(url)  
+    .then(response => response.json())
+    .then(d=>firewall_logs(d))
+}
+
+
+
+      </script>
+</body>
+</html>
