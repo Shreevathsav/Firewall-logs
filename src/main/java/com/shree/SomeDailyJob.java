@@ -372,9 +372,6 @@ public class SomeDailyJob implements Runnable {
                 map.add(val);
 
         }
-        // Map<String, Object> str = db.getAll();
-
-        // System.out.println(str);
         db.close();
         data.clear();
         File test = new File(System.getProperty("user.dir") + "/_Windows____Firewall__logs.db");

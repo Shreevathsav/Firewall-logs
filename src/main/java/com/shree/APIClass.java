@@ -194,9 +194,6 @@ public class APIClass extends HttpServlet {
                         index.clear();
                         f.clear();
                     }
-                    System.out.println(index.size());
-                    System.out.println(ipDestination.size());
-                    System.out.println("done processing new logs");
                     for (int i = index.size(); i < ipDestination.size(); i++) {
                         if (ipDBLogs.contains(ipSource.get(i)) || ipDBLogs.contains(ipDestination.get(i))) {
                             f.add("1");
@@ -319,4 +316,5 @@ public class APIClass extends HttpServlet {
         printWriter.close();
 
     }
+
 }
