@@ -37,10 +37,11 @@ public class APIClass extends HttpServlet {
             throws IOException, ServletException {
         String currentPage = request.getParameter("currentPage");
         String rcrdsPerPage = request.getParameter("rcrdsPerPage");
+        String firstCall = request.getParameter("firstCall");
         System.out.println(rcrdsPerPage);
         int rcrdPerPage = Integer.parseInt(rcrdsPerPage);
-        System.out.println(System.getProperty("user.dir"));
-        DB db = DBMaker.fileDB("_Windows____Firewall__logs.db").fileMmapEnableIfSupported().fileLockWait().make();
+        DB db = DBMaker.fileDB("LOG.db").fileMmapEnableIfSupported().fileLockWait()
+                .make();
         List<String> index = db.indexTreeList("SerialNo", Serializer.STRING).createOrOpen();
         List<String> f = db.indexTreeList("maliciousFlag", Serializer.STRING).createOrOpen();
         List<String> dates = db.indexTreeList("dates", Serializer.STRING).createOrOpen();
@@ -48,6 +49,20 @@ public class APIClass extends HttpServlet {
         List<String> ipSource = db.indexTreeList("Source", Serializer.STRING).createOrOpen();
         List<String> ipDestination = db.indexTreeList("Destination", Serializer.STRING).createOrOpen();
         HashMap<String, List<String>> firewallLogs = new HashMap<String, List<String>>();
+        if (firstCall != null) {
+            List<String> asn = (List<String>) (Object) Arrays.asList(db.get("ASN"));
+            List<String> ipLogs = (List<String>) (Object) Arrays.asList(db.get("IP"));
+            List<String> hashes = (List<String>) (Object) Arrays.asList(db.get("Hashes"));
+            List<String> urls = (List<String>) (Object) Arrays.asList(db.get("url"));
+            List<String> domain = (List<String>) (Object) Arrays.asList(db.get("Domain"));
+
+            firewallLogs.put("ASN", asn);
+            firewallLogs.put("url", urls);
+            firewallLogs.put("Domain", domain);
+            firewallLogs.put("Hashes", hashes);
+            firewallLogs.put("IP", ipLogs);
+
+        }
 
         String status = null;
         File file = new File("C:\\Windows\\System32\\LogFiles\\Firewall\\pfirewall.log");
@@ -76,7 +91,6 @@ public class APIClass extends HttpServlet {
         }
         if (status.equals("200")) {
             HTreeMap.KeySet<String> ipDBLogs = db.get("IP");
-            System.out.println(ipDBLogs);
             if (ipDBLogs == null) {
                 ArrayList<String> stcode = new ArrayList<String>();
                 stcode.add("403");
@@ -85,22 +99,6 @@ public class APIClass extends HttpServlet {
             } else {
 
                 if (currentPage.equals("1")) {
-                    List<String> asn = (List<String>) (Object) Arrays.asList(db.get("ASN"));
-                    List<String> ipLogs = (List<String>) (Object) Arrays.asList(db.get("IP"));
-                    List<String> hashes = (List<String>) (Object) Arrays.asList(db.get("Hashes"));
-                    List<String> urls = (List<String>) (Object) Arrays.asList(db.get("url"));
-                    List<String> domain = (List<String>) (Object) Arrays.asList(db.get("Domain"));
-
-                    firewallLogs.put("ASN", asn);
-                    firewallLogs.put("url", urls);
-                    firewallLogs.put("Domain", domain);
-                    firewallLogs.put("Hashes", hashes);
-                    firewallLogs.put("IP", ipLogs);
-
-                    long st = file.lastModified();
-                    System.out.println(st);
-                    System.out.println("added ipDBlogs");
-
                     String zeroTo255 = "(\\d{1,2}|(0|1)\\" + "d{2}|2[0-4]\\d|25[0-5])";
                     String IPV4_REGEX = zeroTo255 + "\\." + zeroTo255 + "\\." + zeroTo255 + "\\." + zeroTo255;
 
@@ -117,17 +115,20 @@ public class APIClass extends HttpServlet {
 
                         BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
                         int skip;
+
                         List<String> tempLines = br.lines().toList();
-                        System.out.println(tempLines.size());
+                        System.out.println(tempLines.size() - 5);
+                        System.out.println(index.size());
                         if ((tempLines.size() - 5) < index.size()) {
                             skip = 0;
+                            index.clear();
                         } else {
-                            skip = 5 + index.size() - 1;
+                            skip = 5 + index.size();
                         }
-                        // tempLines.clear();
+                        System.out.println("skip " + skip);
                         br.close();
                         List<String> str = tempLines.subList(skip, tempLines.size());
-
+                        System.out.println(str.size());
                         for (String strLine : str) {
                             int flag = 1;
                             String[] splited = strLine.split("\\s+");
@@ -140,6 +141,7 @@ public class APIClass extends HttpServlet {
                             Pattern timePattern = Pattern.compile(timeRegex);
                             String tempDate = null;
                             String tempTime = null;
+                            int i = 0;
                             for (String s : splited) {
 
                                 Matcher matcher1 = datePattern.matcher(s);
@@ -154,7 +156,6 @@ public class APIClass extends HttpServlet {
                                     tempTime = s;
                                     time.add(tempTime);
                                 } else {
-                                    // System.out.println("E");
                                 }
                                 Matcher matcher3 = ipv4Pattern.matcher(s);
                                 Matcher matcher4 = ipv6Pattern1.matcher(s);
@@ -166,6 +167,7 @@ public class APIClass extends HttpServlet {
 
                                     if (flag == 1) {
                                         ipSource.add(s);
+
                                         flag = 0;
                                     } else if (flag == 0) {
                                         ipDestination.add(s);
@@ -175,34 +177,18 @@ public class APIClass extends HttpServlet {
                                     // System.out.println("E");
                                 }
                             }
-                            if (ipSource.size() < ipDestination.size()) {
-                                ipSource.add("No source");
-                            } else if (ipSource.size() > ipDestination.size()) {
-                                ipDestination.add("No Destination");
+                            if (ipDBLogs.contains(ipSource.get(i)) || ipDBLogs.contains(ipDestination.get(i))) {
+                                f.add("1");
+                            } else {
+                                f.add("0");
                             }
+                            i = i + 1;
+                            index.add(Integer.toString(i));
 
                         }
                         fstream.close();
                     } catch (Exception e) {
                         System.err.println("Error: " + e.getMessage());
-                    }
-                    ipDestination.add("176.28.11.99");
-                    dates.add("2021-11-25");
-                    time.add("10:09:03");
-                    ipSource.add("192.168.29.212");
-                    if (index.size() > ipSource.size()) {
-                        index.clear();
-                        f.clear();
-                    }
-                    for (int i = index.size(); i < ipDestination.size(); i++) {
-                        if (ipDBLogs.contains(ipSource.get(i)) || ipDBLogs.contains(ipDestination.get(i))) {
-                            f.add("1");
-                        } else {
-                            f.add("0");
-                        }
-                        int j = i + 1;
-                        index.add(Integer.toString(j));
-
                     }
                     System.out.println("done adding flags");
                     int no_of_pages = ipSource.size() / rcrdPerPage;
@@ -224,9 +210,6 @@ public class APIClass extends HttpServlet {
                             end = 0;
                         }
                     }
-
-                    System.out.println(start);
-                    System.out.println(end);
                     List<String> flag = new ArrayList<String>(f);
                     List<String> totalPages = new ArrayList<String>();
                     totalPages.add(Integer.toString(no_of_pages));
@@ -239,8 +222,6 @@ public class APIClass extends HttpServlet {
                     firewallLogs.put("IPSrc", ipSource.subList(end, start));
                     firewallLogs.put("IPDest", ipDestination.subList(end, start));
                     firewallLogs.put("FLAG", flag.subList(end, start));
-                    System.out.println(flag.size());
-                    System.out.println(ipSource.size());
 
                 } else {
 
@@ -276,10 +257,6 @@ public class APIClass extends HttpServlet {
                     firewallLogs.put("IPSrc", ipSource.subList(end, start));
                     firewallLogs.put("IPDest", ipDestination.subList(end, start));
                     firewallLogs.put("FLAG", flag.subList(end, start));
-                    System.out.println(firewallLogs.get("IPSrc").size());
-                    System.out.println(dates.size());
-                    System.out.println(ipSource.size());
-                    System.out.println(ipDestination.size());
 
                 }
 

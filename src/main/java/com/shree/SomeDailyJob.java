@@ -342,7 +342,7 @@ public class SomeDailyJob implements Runnable {
             e.printStackTrace();
         }
 
-        DB db = DBMaker.fileDB("_Windows____Firewall__logs.db").fileMmapEnable().fileLockWait().make();
+        DB db = DBMaker.fileDB("LOG.db").fileMmapEnable().fileLockWait().make();
         HTreeMap.KeySet<String> ipLogs = db.get("IP");
         HTreeMap.KeySet<String> hashes = db.get("Hashes");
         HTreeMap.KeySet<String> urls = db.get("url");
