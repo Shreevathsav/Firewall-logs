@@ -145,6 +145,36 @@
                 })
 
         }
+
+        function onRecordsPerPageChanged() {
+            div = document.getElementById("log")
+            div.innerHTML = " ";
+            spinner.removeAttribute('hidden');
+
+            let url = 'http://localhost:8080/malicious_logs/FirewallLogs?rcrdsPerPage=' + recordsPerPage + '&currentPage=1';
+            fetch(url)
+                .then(response => response.json())
+                .then(d => {
+                    if (d.status[0] == "200") {
+
+                        div = document.getElementById("log")
+                        div.innerHTML = " ";
+
+
+                        let totalPages = parseInt(d.totalPages[0]);
+                        console.log(totalPages);
+                        getPages(totalPages);
+                        if (d.IP != undefined) {
+                            getStixData(d);
+                        }
+
+                    }
+
+                    firewall_logs(d);
+
+                })
+
+        }
         async function firewall_logs(d) {
 
             let res = await d;
@@ -381,10 +411,8 @@
         select.onchange = () => {
             console.log(select.value);
             recordsPerPage = select.value;
-            onLoadFinished();
+            onRecordsPerPageChanged();
         }
-
-
 
         function getPageList(totalPages, page, maxLength) {
             if (maxLength < 5) throw "maxLength must be at least 5";

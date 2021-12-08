@@ -191,25 +191,10 @@ public class APIClass extends HttpServlet {
                         System.err.println("Error: " + e.getMessage());
                     }
                     System.out.println("done adding flags");
-                    int no_of_pages = ipSource.size() / rcrdPerPage;
-                    if (no_of_pages * rcrdPerPage < ipSource.size()) {
-                        no_of_pages = no_of_pages + 1;
-                    }
-                    int start;
-                    int end;
-                    if (ipSource.size() % rcrdPerPage == 0) {
-
-                        start = (((no_of_pages - Integer.parseInt(currentPage)) + 1) * rcrdPerPage);
-                        end = start - rcrdPerPage;
-
-                    } else {
-                        start = (((no_of_pages - Integer.parseInt(currentPage))) * rcrdPerPage
-                                + (ipSource.size() % rcrdPerPage));
-                        end = start - rcrdPerPage;
-                        if (end < 0) {
-                            end = 0;
-                        }
-                    }
+                    int no_of_pages = getNoOfPages(ipSource, rcrdPerPage);
+                    List<Integer> startEnd = getStartEndOfPagination(ipSource, rcrdPerPage, no_of_pages, currentPage);
+                    int start = startEnd.get(0);
+                    int end = startEnd.get(1);
                     List<String> flag = new ArrayList<String>(f);
                     List<String> totalPages = new ArrayList<String>();
                     totalPages.add(Integer.toString(no_of_pages));
@@ -224,26 +209,10 @@ public class APIClass extends HttpServlet {
                     firewallLogs.put("FLAG", flag.subList(end, start));
 
                 } else {
-
-                    int no_of_pages = ipSource.size() / rcrdPerPage;
-                    if (no_of_pages * rcrdPerPage < ipSource.size()) {
-                        no_of_pages = no_of_pages + 1;
-                    }
-                    int start;
-                    int end;
-                    if (ipSource.size() % rcrdPerPage == 0) {
-
-                        start = (((no_of_pages - Integer.parseInt(currentPage)) + 1) * rcrdPerPage);
-                        end = start - rcrdPerPage;
-
-                    } else {
-                        start = (((no_of_pages - Integer.parseInt(currentPage))) * rcrdPerPage
-                                + (ipSource.size() % rcrdPerPage));
-                        end = start - rcrdPerPage;
-                        if (end < 0) {
-                            end = 0;
-                        }
-                    }
+                    int no_of_pages = getNoOfPages(ipSource, rcrdPerPage);
+                    List<Integer> startEnd = getStartEndOfPagination(ipSource, rcrdPerPage, no_of_pages, currentPage);
+                    int start = startEnd.get(0);
+                    int end = startEnd.get(1);
 
                     List<String> flag = new ArrayList<String>(f);
                     List<String> totalPages = new ArrayList<String>();
@@ -294,4 +263,33 @@ public class APIClass extends HttpServlet {
 
     }
 
+    int getNoOfPages(List<String> ipSource, int rcrdPerPage) {
+        int no_of_pages = ipSource.size() / rcrdPerPage;
+        if (no_of_pages * rcrdPerPage < ipSource.size()) {
+            no_of_pages = no_of_pages + 1;
+        }
+        return no_of_pages;
+    }
+
+    List<Integer> getStartEndOfPagination(List<String> ipSource, int rcrdPerPage, int no_of_pages, String currentPage) {
+        List<Integer> startEnd = new ArrayList<Integer>();
+        int start;
+        int end;
+        if (ipSource.size() % rcrdPerPage == 0) {
+
+            start = (((no_of_pages - Integer.parseInt(currentPage)) + 1) * rcrdPerPage);
+            end = start - rcrdPerPage;
+
+        } else {
+            start = (((no_of_pages - Integer.parseInt(currentPage))) * rcrdPerPage
+                    + (ipSource.size() % rcrdPerPage));
+            end = start - rcrdPerPage;
+            if (end < 0) {
+                end = 0;
+            }
+        }
+        startEnd.add(start);
+        startEnd.add(end);
+        return startEnd;
+    }
 }
