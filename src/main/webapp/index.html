@@ -33,7 +33,7 @@
             <button class="nav-link active" id="log-tab" data-bs-toggle="tab" data-bs-target="#log-container" type="button" role="tab" aria-controls="home" aria-selected="true">FireWall-Logs</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="db-tab" data-bs-toggle="tab" data-bs-target="#db" type="button" role="tab" aria-controls="profile" aria-selected="false">MapDB-Data</button>
+            <button class="nav-link" id="db-tab" data-bs-toggle="tab" data-bs-target="#db" type="button" role="tab" aria-controls="profile" aria-selected="false" onclick="onTabchanged()">MapDB-Data</button>
         </li>
     </ul>
     <div class="tab-content" id="myTabContent">
@@ -59,23 +59,22 @@
             </div>
             <div id="log">
 
-                <br>
-                <br>
-                <center>
-                    <div class="error" id="error-icon">
-                        <i class="fas fa-exclamation-triangle"></i><br>
-                    </div>
-                    <div class="error" id="display-error">
-
-                    </div>
-                    <br>
-                </center>
-
 
             </div>
+            <center>
+                <div class="error" id="error-icon">
+                    <i class="fas fa-exclamation-triangle"></i><br>
+                </div>
+                <div class="error" id="display-error">
+
+                </div>
+                <br>
+            </center>
+
             <div hidden id="spinner"></div>
         </div>
         <div class="tab-pane fade" id="db" role="tabpanel" aria-labelledby="profile-tab">
+            <div hidden id="spinner"></div>
             <div class="container">
                 <center>
                     <canvas id="pie" style="width:100%;max-width:700px"></canvas>
@@ -111,6 +110,7 @@
     </div>
 
     <script>
+        let tabLoded = 0;
         let recordsPerPage = '50';
         const spinner = document.getElementById("spinner");
         window.onload = function onLoad() {
@@ -119,34 +119,23 @@
             onLoadFinished();
         }
 
-        function onLoadFinished() {
-
-            let url = 'http://localhost:8080/malicious_logs/FirewallLogs?rcrdsPerPage=' + recordsPerPage + '&currentPage=1&firstCall=true';
-            fetch(url)
-                .then(response => response.json())
-                .then(d => {
-                    if (d.status[0] == "200") {
-
-                        div = document.getElementById("log")
-                        div.innerHTML = " ";
-
-
-                        let totalPages = parseInt(d.totalPages[0]);
-                        console.log(totalPages);
-                        getPages(totalPages);
+        function onTabchanged() {
+            if (tabLoded == 0) {
+                tabLoded = 1;
+                spinner.removeAttribute('hidden');
+                let url = 'http://localhost:8080/malicious_logs/FirewallLogs?firstCall=true';
+                fetch(url)
+                    .then(response => response.json())
+                    .then(d => {
                         if (d.IP != undefined) {
                             getStixData(d);
                         }
-
-                    }
-
-                    firewall_logs(d);
-
-                })
+                    })
+            }
 
         }
 
-        function onRecordsPerPageChanged() {
+        function onLoadFinished() {
             div = document.getElementById("log")
             div.innerHTML = " ";
             spinner.removeAttribute('hidden');
@@ -352,8 +341,9 @@
             div1.appendChild(asnTable);
         }
 
-        async function handleError(res) {
+        function handleError(res) {
             error = document.getElementById("display-error");
+            console.log(error);
             errorIcon = document.getElementById("error-icon");
             if (res.status[0] == "402") {
 
@@ -378,6 +368,7 @@
         }
 
         async function getStixData(stixData) {
+            spinner.setAttribute('hidden', '');
             let stix = stixData
             console.log(stix.ASN[0][0]);
             var xValues = ["ASN", "IP-Address", "Urls", "Domains", "Hashes"];
@@ -411,7 +402,7 @@
         select.onchange = () => {
             console.log(select.value);
             recordsPerPage = select.value;
-            onRecordsPerPageChanged();
+            onLoadFinished();
         }
 
         function getPageList(totalPages, page, maxLength) {
