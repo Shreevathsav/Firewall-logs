@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -398,7 +399,8 @@ public class SomeDailyJob implements Runnable {
 
             for (String k : keys) {
                 ArrayList<String> v = data.get(k);
-                KeySet<String> map = db.hashSet(k).serializer(Serializer.STRING).createOrOpen();
+                KeySet<String> map =db.hashSet(k).expireAfterCreate(1,TimeUnit.DAYS).serializer(Serializer.STRING).createOrOpen();
+
 
                 for (String val : v)
                     map.add(val);
@@ -415,6 +417,8 @@ public class SomeDailyJob implements Runnable {
             data.clear();
         }
         System.out.println("work done");
+        FileChangeDectector f = new FileChangeDectector();
+        f.test();
     }
 
 }

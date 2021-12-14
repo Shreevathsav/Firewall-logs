@@ -1,3 +1,5 @@
 com\shree\APIClass.class
+com\shree\FileChangeDectector.class
+com\shree\LogFetch.class
 com\shree\BackgroundListner.class
 com\shree\SomeDailyJob.class
