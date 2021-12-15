@@ -30,14 +30,27 @@
     </nav>
     <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="log-tab" data-bs-toggle="tab" data-bs-target="#log-container" type="button" role="tab" aria-controls="home" aria-selected="true">FireWall-Logs</button>
+            <button class="nav-link active" id="feed-tab" data-bs-toggle="tab" data-bs-target="#feed-container" type="button" role="tab" aria-controls="feed" aria-selected="true">LiveFeed</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="log-tab" onclick="onLoadFinished()" data-bs-toggle="tab" data-bs-target="#log-container" type="button" role="tab" aria-controls="home" aria-selected="false">FireWall-Logs</button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="db-tab" data-bs-toggle="tab" data-bs-target="#db" type="button" role="tab" aria-controls="profile" aria-selected="false" onclick="onTabchanged()">MapDB-Data</button>
         </li>
     </ul>
+
     <div class="tab-content" id="myTabContent">
-        <div class="tab-pane fade show active" id="log-container" role="tabpanel" aria-labelledby="home-tab">
+        <div class="tab-pane fade show active" id="feed-container" role="tabpanel" aria-labelledby="feed-tab">
+            <button class="btn btn-outline-dark" id="start" onclick="startMonitoring()">Start-Logging</button>
+            <button class="btn btn-outline-dark" id="stop" onclick="stopMonitoring()">Stop-Logging</button><br>
+            <table class="table table-striped table-hover" id="feedTable">
+
+            </table>
+        </div>
+
+
+        <div class="tab-pane fade show" id="log-container" role="tabpanel" aria-labelledby="home-tab">
 
             <div id="header" class="error">
                 <div>
@@ -110,13 +123,155 @@
     </div>
 
     <script>
+        var event = null;
+        var feedTable = document.getElementById("feedTable")
+
+        function startMonitoring() {
+            start.disabled = true;
+            console.log("monitering");
+            feedTable.innerHTML = "";
+            event = new EventSource('http://localhost:8080/malicious_logs/LiveFeed');
+            event.onmessage = function(eventFetch) {
+                console.log("message")
+                var jsonData = JSON.parse(eventFetch.data);
+                console.log(jsonData);
+                var keys = Object.keys(jsonData);
+                console.log(keys);
+                if (jsonData.status[0] == "200") {
+                    feedTable.innerHTML = "";
+                    if (feedTable.rows.length == 0)
+                        getTableHead();
+                    getTableBody(keys, jsonData);
+                }
+
+            }
+
+
+        }
+
+        function getTableHead() {
+
+        }
+
+        function getTableBody(keys, jsonData) {
+            feedTable.innerHTML = " ";
+            heading = [
+
+                "Date",
+                "Time",
+                "Source-IP",
+                "Destination-IP",
+                "Status"
+            ];
+            var tr = feedTable.insertRow(-1);
+            for (let i = 0; i < 5; i++) {
+                var th = document.createElement('th');
+                th.innerHTML = heading[i];
+                tr.appendChild(th);
+            }
+            var rowCnt = feedTable.rows.length;
+            var tr = feedTable.insertRow(rowCnt);
+
+            var tbody = document.createElement('tbody');
+            if (jsonData.IPDest.length == 0) {
+                var row = document.createElement("tr");
+                var cell = document.createElement("td");
+                h4 = document.createElement("h4");
+                h4.innerText = "No Logs";
+                cell.appendChild(h4);
+                row.appendChild(cell);
+                var cell1 = document.createElement("td");
+                h4 = document.createElement('h4');
+                h4.innerText = "-";
+                cell1.appendChild(h4);
+                row.appendChild(cell1);
+                tbody.appendChild(row);
+                var cell1 = document.createElement("td");
+                h4 = document.createElement('h4');
+                h4.innerText = "-";
+                cell1.appendChild(h4);
+                row.appendChild(cell1);
+                tbody.appendChild(row);
+                var cell1 = document.createElement("td");
+                h4 = document.createElement('h4');
+                h4.innerText = "-";
+                cell1.appendChild(h4);
+                row.appendChild(cell1);
+                tbody.appendChild(row);
+                var cell1 = document.createElement("td");
+                h4 = document.createElement('h4');
+                h4.innerText = "-";
+                cell1.appendChild(h4);
+                row.appendChild(cell1);
+                tbody.appendChild(row);
+            } else {
+                for (var i = jsonData.IPDest.length - 1; i >= 0; i--) {
+                    var row = document.createElement("tr");
+                    var cell2 = document.createElement("td");
+                    h1 = document.createElement("h4");
+                    h1.innerHTML = jsonData.date[i];
+                    cell2.appendChild(h1);
+                    row.appendChild(cell2)
+                    var cell = document.createElement("td");
+                    h2 = document.createElement("h4");
+                    h2.innerHTML = jsonData.time[i];
+                    cell.appendChild(h2);
+                    row.appendChild(cell);
+                    var cell1 = document.createElement("td");
+                    h3 = document.createElement('h4');
+                    h3.innerText = jsonData.IPSrc[i];
+                    cell1.appendChild(h3);
+                    row.appendChild(cell1);
+                    var cell3 = document.createElement("td");
+                    h4 = document.createElement("h4");
+                    h4.innerHTML = jsonData.IPDest[i];
+                    cell3.appendChild(h4);
+                    row.appendChild(cell3);
+                    var cell4 = document.createElement("td");
+                    h5 = document.createElement("h4");
+                    if (jsonData.FLAG[i] == "1") {
+                        h5.innerHTML = '<i class="fas fa-exclamation-triangle" aria-hidden="true"></i>';
+                    } else {
+                        h5.innerHTML = '<i class="fas fa-check-circle" aria-hidden="true"></i>';
+                    }
+                    cell4.appendChild(h5);
+                    row.appendChild(cell4);
+
+                    if (jsonData.FLAG[i] == "1") {
+                        cell.style.color = "#FF0000";
+                        cell1.style.color = "#FF0000"
+                        cell2.style.color = "#FF0000";
+                        cell3.style.color = "#FF0000";
+                        cell4.style.color = "#FF0000";
+                    } else {
+                        cell.style.color = "#4E9F3D";
+                        cell1.style.color = "#4E9F3D";
+                        cell2.style.color = "#4E9F3D";
+                        cell3.style.color = "#4E9F3D";
+                        cell4.style.color = "#4E9F3D";
+                    }
+                    row.classList.add("content");
+                    tbody.appendChild(row);
+                }
+            }
+            tbody.setAttribute("id", "tbody");
+            feedTable.appendChild(tbody);
+
+
+        }
+
+        function stopMonitoring() {
+            event.close();
+            start.disabled = false;
+        }
         let tabLoded = 0;
         let recordsPerPage = '50';
         const spinner = document.getElementById("spinner");
         window.onload = function onLoad() {
-            console.log("spinner");
+
             spinner.removeAttribute('hidden');
-            onLoadFinished();
+
+
         }
 
         function onTabchanged() {

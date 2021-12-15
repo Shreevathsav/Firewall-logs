@@ -35,8 +35,9 @@ public class APIClass extends HttpServlet {
         String firstCall = request.getParameter("firstCall");
         System.out.println(rcrdsPerPage);
 
-        DB db = DBMaker.fileDB("malisious.db").fileMmapEnableIfSupported().fileLockWait()
+        DB db = DBMaker.fileDB("MalisiousFirewall.db").fileMmapEnableIfSupported().fileLockWait()
                 .make();
+            System.out.println("done initializing");
         List<String> f = db.indexTreeList("maliciousFlag", Serializer.STRING).createOrOpen();
         List<String> dates = db.indexTreeList("dates", Serializer.STRING).createOrOpen();
         List<String> time = db.indexTreeList("time", Serializer.STRING).createOrOpen();

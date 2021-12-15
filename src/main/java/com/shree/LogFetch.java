@@ -16,14 +16,17 @@ import java.util.regex.Matcher;
 public class LogFetch {
    public void fetchLogs(){
        System.out.println("inside fetch");
-    DB db = DBMaker.fileDB("malisious.db").fileMmapEnableIfSupported().fileLockWait()
+    DB db = DBMaker.fileDB("MalisiousFirewall.db").fileMmapEnableIfSupported().fileLockWait()
     .make();
+    System.out.println("after db");
     List<String> index = db.indexTreeList("SerialNo", Serializer.STRING).createOrOpen();
     List<String> f = db.indexTreeList("maliciousFlag", Serializer.STRING).createOrOpen();
     List<String> dates = db.indexTreeList("dates", Serializer.STRING).createOrOpen();
     List<String> time = db.indexTreeList("time", Serializer.STRING).createOrOpen();
     List<String> ipSource = db.indexTreeList("Source", Serializer.STRING).createOrOpen();
     List<String> ipDestination = db.indexTreeList("Destination", Serializer.STRING).createOrOpen();
+    List<String> streamFlag = db.indexTreeList("streamFlag", Serializer.STRING).createOrOpen();
+    streamFlag.add("added");
     HTreeMap.KeySet<String> ipDBLogs = db.get("IP");
 
     String zeroTo255 = "(\\d{1,2}|(0|1)\\" + "d{2}|2[0-4]\\d|25[0-5])";
@@ -121,5 +124,6 @@ public class LogFetch {
         }
         System.out.println("done adding flags");
         db.close();
+
    } 
 }

@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +21,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.HTreeMap;
+import org.mapdb.IndexTreeList;
 import org.mapdb.Serializer;
 import org.mapdb.HTreeMap.KeySet;
 import org.w3c.dom.Document;
@@ -354,71 +356,97 @@ public class SomeDailyJob implements Runnable {
     }
 
     synchronized public void run() {
-        if (data.size() > 0) {
-            data.clear();
-        }
-        System.out.println("worked");
-        SomeDailyJob apIcall = new SomeDailyJob();
-        try {
-            apIcall.phishTank();
-            apIcall.abuseCH();
-            apIcall.malwareDomain();
-            System.out.println("done fetcing Stix");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.out.println("initializing db");
-        DB db = DBMaker.fileDB("malisious.db").fileMmapEnable().fileLockWait().make();
-        System.out.println("created db");
-        HTreeMap.KeySet<String> ipLogs = db.get("IP");
-        HTreeMap.KeySet<String> hashes = db.get("Hashes");
-        HTreeMap.KeySet<String> urls = db.get("url");
-        HTreeMap.KeySet<String> domain = db.get("Domain");
-        HTreeMap.KeySet<String> asn = db.get("ASN");
-        Set<String> keys = data.keySet();
-        System.out.println("done getting");
-        if (data.get("Status1").get(0) == "200" || data.get("Status2").get(0) == "200"
-                || data.get("Status3").get(0) == "200") {
-            System.out.println("done if");
-            if (ipLogs != null && ipLogs.size() > 0 && data.containsKey("IP")) {
-                ipLogs.clear();
-            }
-            if (hashes != null && hashes.size() > 0 && data.containsKey("Hashes")) {
-                hashes.clear();
-            }
-            if (urls != null && urls.size() > 0 && data.containsKey("url")) {
-                urls.clear();
-            }
-            if (domain != null && domain.size() > 0 && data.containsKey("Domain")) {
-                domain.clear();
-            }
-            if (asn != null && asn.size() > 0 && data.containsKey("ASN")) {
-                asn.clear();
-            }
-            System.out.println("done clearing");
-
-            for (String k : keys) {
-                ArrayList<String> v = data.get(k);
-                KeySet<String> map =db.hashSet(k).expireAfterCreate(1,TimeUnit.DAYS).serializer(Serializer.STRING).createOrOpen();
-
-
-                for (String val : v)
-                    map.add(val);
-
-            }
-            System.out.println("done adding them to db");
+        System.out.println("hi");
+        DB db = DBMaker.fileDB("MalisiousFirewall.db").fileMmapEnable().fileLockWait().make();
+        IndexTreeList<Date> oldTime = db.indexTreeList("syncTime",Serializer.DATE).createOrOpen();
+        long diff ;
+        if(oldTime.size()>0){
             Map<String, Object> test = db.getAll();
-            System.out.println(test);
-
-            db.close();
+                System.out.println(test);
+            Date oldDate = oldTime.get(0);
+            Date newDate = new Date();
+            long diffInMillies = Math.abs(newDate.getTime() - oldDate.getTime());
+            diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+            System.out.println("difference"+diff);
         }
-
-        if (data.size() > 0) {
-            data.clear();
+        else{
+            diff=1;
+            System.out.println(diff);
         }
-        System.out.println("work done");
+        if(diff>=1){
+            if (data.size() > 0) {
+                data.clear();
+            }
+            System.out.println("worked");
+            SomeDailyJob apIcall = new SomeDailyJob();
+            try {
+                apIcall.phishTank();
+                apIcall.abuseCH();
+                apIcall.malwareDomain();
+                System.out.println("done fetcing Stix");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            System.out.println("initializing db");
+            
+            System.out.println("created db");
+            HTreeMap.KeySet<String> ipLogs = db.get("IP");
+            HTreeMap.KeySet<String> hashes = db.get("Hashes");
+            HTreeMap.KeySet<String> urls = db.get("url");
+            HTreeMap.KeySet<String> domain = db.get("Domain");
+            HTreeMap.KeySet<String> asn = db.get("ASN");
+            Set<String> keys = data.keySet();
+            System.out.println("done getting");
+            if (data.get("Status1").get(0) == "200" || data.get("Status2").get(0) == "200"
+                    || data.get("Status3").get(0) == "200") {
+                System.out.println("done if");
+                if (ipLogs != null && ipLogs.size() > 0 && data.containsKey("IP")) {
+                    ipLogs.clear();
+                }
+                if (hashes != null && hashes.size() > 0 && data.containsKey("Hashes")) {
+                    hashes.clear();
+                }
+                if (urls != null && urls.size() > 0 && data.containsKey("url")) {
+                    urls.clear();
+                }
+                if (domain != null && domain.size() > 0 && data.containsKey("Domain")) {
+                    domain.clear();
+                }
+                if (asn != null && asn.size() > 0 && data.containsKey("ASN")) {
+                    asn.clear();
+                }
+                System.out.println("done clearing");
+    
+                for (String k : keys) {
+                    ArrayList<String> v = data.get(k);
+                    KeySet<String> map =db.hashSet(k).expireAfterCreate(1,TimeUnit.DAYS).serializer(Serializer.STRING).createOrOpen();
+    
+    
+                    for (String val : v)
+                        map.add(val);
+    
+                }
+                System.out.println("done adding them to db");
+                Map<String, Object> test = db.getAll();
+                System.out.println(test);
+
+                Date now = new Date();
+                IndexTreeList<Date> newTime = db.indexTreeList("syncTime",Serializer.DATE).createOrOpen();
+                newTime.add(now);
+               
+            }
+    
+            if (data.size() > 0) {
+                data.clear();
+            }
+            System.out.println("work done");
+            
+    
+        }
+        db.close();
+        System.out.println("db closed");
         FileChangeDectector f = new FileChangeDectector();
-        f.test();
-    }
+            f.test();
+            }
 
 }
