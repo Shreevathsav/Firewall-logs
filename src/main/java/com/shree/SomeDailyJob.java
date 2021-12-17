@@ -446,7 +446,9 @@ public class SomeDailyJob implements Runnable {
         db.close();
         System.out.println("db closed");
         FileChangeDectector f = new FileChangeDectector();
-            f.test();
+        f.test();
+
+       
             }
 
 }

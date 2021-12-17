@@ -1,23 +1,22 @@
-nav{
+nav {
     background-color: #610094;
 }
 
-.tab-pane{
+.tab-pane {
     padding: 15px;
 }
 
-.Danger{
+.Danger {
     color: red;
 }
 
-table{
-margin-top: 20px;
-table-layout: fixed;
-width: 100%;
+table {
+    margin-top: 20px;
+    table-layout: fixed;
+    width: 100%;
 }
 
-
-table td{
+table td {
     word-break: break-all;
 }
 
@@ -30,9 +29,9 @@ table td{
     display: flex;
     justify-content: center;
     align-items: center;
-  }
-  
-  #spinner::after {
+}
+
+#spinner::after {
     content: "";
     width: 80px;
     height: 80px;
@@ -41,68 +40,73 @@ table td{
     border-radius: 100%;
     will-change: transform;
     animation: spin 1s infinite linear
-  }
-  
-  @keyframes spin {
+}
+
+@keyframes spin {
     from {
-      transform: rotate(0deg);
+        transform: rotate(0deg);
     }
     to {
-      transform: rotate(360deg);
+        transform: rotate(360deg);
     }
-  }
+}
 
-.error{
-  display: none;
+.error {
+    display: none;
 }
-#display-error
-{
-width: 700px;
-border: 1px solid #D8D8D8;
-padding: 5px;
-border-radius: 5px;
-font-family: Arial;
-font-size: 20px;
-text-transform: capitalize;
-background-color: rgb(255, 249, 242);
-color: rgb(211, 0, 0);
-text-align: left;
+
+#display-error {
+    width: 700px;
+    border: 1px solid #D8D8D8;
+    padding: 5px;
+    border-radius: 5px;
+    font-family: Arial;
+    font-size: 20px;
+    text-transform: capitalize;
+    background-color: rgb(255, 249, 242);
+    color: rgb(211, 0, 0);
+    text-align: left;
 }
- 
-img
-{
-float: left;
+
+img {
+    float: left;
 }
-#error-icon{
-  font-size:40px ;
+
+#error-icon {
+    font-size: 40px;
 }
-#error-icon i{
-  color: red;
-  size: 40px;
+
+#error-icon i {
+    color: red;
+    size: 40px;
 }
+
 .page-link {
-  position: relative;
-  display: block;
-  padding: .5rem .75rem;
-  margin-left: -1px;
-  line-height: 1.25;
-  color: black !important;
-  background-color: white!important;
-  border: 0.5px solid gainsboro !important;
+    position: relative;
+    display: block;
+    padding: .5rem .75rem;
+    margin-left: -1px;
+    line-height: 1.25;
+    color: black !important;
+    background-color: white!important;
+    border: 0.5px solid gainsboro !important;
 }
+
 .page-link:hover {
-      z-index: 2;
-      color: #fff !important;
-      text-decoration: none;
-      background-color: #610094 !important;
-      border-color:#610094;
+    z-index: 2;
+    color: #fff !important;
+    text-decoration: none;
+    background-color: #610094 !important;
+    border-color: #610094;
 }
+
 .page-item.active .page-link {
-  z-index: 3;
-  color: #fff !important;
-  background-color: #610094 !important;
-  border-color: #610094;
+    z-index: 3;
+    color: #fff !important;
+    background-color: #610094 !important;
+    border-color: #610094;
 }
+
 
 /* ul{
   
@@ -114,6 +118,7 @@ ul li{
   font-weight: bold;
   border: 1px solid #ccc;
 } */
+
 
 /* .pagination > li > a
 {
@@ -145,18 +150,26 @@ ul li{
     border: solid 1px #610094;
 } */
 
-select{
-  width: 126px;
-  padding: 6px;
-  margin: 5px 0px;
-  border: 1px solid #ccc;
-  cursor: pointer;
-  outline: none;
+.filter {
+    padding: 10px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
-ul li a{
-  text-decoration: none;
+select {
+    width: 126px;
+    padding: 6px;
+    margin: 5px 0px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    outline: none;
 }
+
+ul li a {
+    text-decoration: none;
+}
+
 
 /* main {
   display: flex;

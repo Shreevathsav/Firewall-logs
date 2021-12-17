@@ -3,12 +3,12 @@ package com.shree;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-
 
 import javax.servlet.annotation.WebServlet;
 
@@ -33,11 +33,13 @@ public class APIClass extends HttpServlet {
         String currentPage = request.getParameter("currentPage");
         String rcrdsPerPage = request.getParameter("rcrdsPerPage");
         String firstCall = request.getParameter("firstCall");
+        String filterType = request.getParameter("filterType");
+        String filterValue = request.getParameter("filterValue");
         System.out.println(rcrdsPerPage);
 
         DB db = DBMaker.fileDB("MalisiousFirewall.db").fileMmapEnableIfSupported().fileLockWait()
                 .make();
-            System.out.println("done initializing");
+        System.out.println("done initializing");
         List<String> f = db.indexTreeList("maliciousFlag", Serializer.STRING).createOrOpen();
         List<String> dates = db.indexTreeList("dates", Serializer.STRING).createOrOpen();
         List<String> time = db.indexTreeList("time", Serializer.STRING).createOrOpen();
@@ -57,7 +59,7 @@ public class APIClass extends HttpServlet {
             firewallLogs.put("Hashes", hashes);
             firewallLogs.put("IP", ipLogs);
         } else {
-           
+
             int rcrdPerPage = Integer.parseInt(rcrdsPerPage);
             String status = null;
             File file = new File("C:\\Windows\\System32\\LogFiles\\Firewall\\pfirewall.log.txt");
@@ -92,45 +94,65 @@ public class APIClass extends HttpServlet {
 
                     firewallLogs.put("status", stcode);
                 } else {
-                        
-                        int no_of_pages = ipSource.size() / rcrdPerPage;
-                        if (no_of_pages * rcrdPerPage < ipSource.size()) {
-                            no_of_pages = no_of_pages + 1;
+
+                    System.out.println("after no_of pags");
+                    int start;
+                    int end;
+                    int tempstart = 0;
+                    int tempend = ipSource.size();
+
+                    if (filterType != null && filterType.equals("date")) {
+                        if (dates.indexOf(filterValue) != -1) {
+                            tempstart = dates.indexOf(filterValue);
+                            tempend = dates.lastIndexOf(filterValue) + 1;
                         }
-                        System.out.println("after no_of pags");
-                        int start;
-        int end;
-        if (ipSource.size() % rcrdPerPage == 0) {
-
-            start = (((no_of_pages - Integer.parseInt(currentPage)) + 1) * rcrdPerPage);
-            end = start - rcrdPerPage;
-
-        } else {
-            start = (((no_of_pages - Integer.parseInt(currentPage))) * rcrdPerPage
-                    + (ipSource.size() % rcrdPerPage));
-            end = start - rcrdPerPage;
-            if (end < 0) {
-                end = 0;
-            }
-        }
-
-                    System.out.println("after start");
-                        List<String> totalPages = new ArrayList<String>();
-                        totalPages.add(Integer.toString(no_of_pages));
-                        List<String> statusCode = new ArrayList<String>();
-                        statusCode.add("200");
-                        System.out.println("testing");
-                        firewallLogs.put("totalPages", totalPages);
-                        firewallLogs.put("status", statusCode);
-                        firewallLogs.put("date", dates.subList(end, start));
-                        firewallLogs.put("time", time.subList(end, start));
-                        firewallLogs.put("IPSrc", ipSource.subList(end, start));
-                        firewallLogs.put("IPDest", ipDestination.subList(end, start));
-                        firewallLogs.put("FLAG", f.subList(end, start));
+                    } else if (filterType != null && filterType.equals("time")) {
+                        Date date = new java.util.Date();
+                        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+                        String timeNow = sdf.format(date);
+                        System.out.println(timeNow);
 
                     }
 
-                
+                    List<String> tempDates = dates.subList(tempstart, tempend);
+                    List<String> tempTime = time.subList(tempstart, tempend);
+                    List<String> tempipSource = ipSource.subList(tempstart, tempend);
+                    List<String> tempiDestination = ipDestination.subList(tempstart, tempend);
+                    List<String> flag = f.subList(tempstart, tempend);
+                    System.out.println(tempipSource.size());
+                    int no_of_pages = tempipSource.size() / rcrdPerPage;
+                    if (no_of_pages * rcrdPerPage < tempipSource.size()) {
+                        no_of_pages = no_of_pages + 1;
+                    }
+                    if (tempDates.size() % rcrdPerPage == 0) {
+
+                        start = (((no_of_pages - Integer.parseInt(currentPage)) + 1) * rcrdPerPage);
+                        end = start - rcrdPerPage;
+
+                    } else {
+                        start = (((no_of_pages - Integer.parseInt(currentPage))) * rcrdPerPage
+                                + (tempDates.size() % rcrdPerPage));
+                        end = start - rcrdPerPage;
+                        if (end < 0) {
+                            end = 0;
+                        }
+                    }
+                    System.out.println("after start");
+                    System.out.println(end + " " + start);
+                    List<String> totalPages = new ArrayList<String>();
+                    totalPages.add(Integer.toString(no_of_pages));
+                    List<String> statusCode = new ArrayList<String>();
+                    statusCode.add("200");
+                    System.out.println("testing");
+                    firewallLogs.put("totalPages", totalPages);
+                    firewallLogs.put("status", statusCode);
+                    firewallLogs.put("date", tempDates.subList(end, start));
+                    firewallLogs.put("time", tempTime.subList(end, start));
+                    firewallLogs.put("IPSrc", tempipSource.subList(end, start));
+                    firewallLogs.put("IPDest", tempiDestination.subList(end, start));
+                    firewallLogs.put("FLAG", flag.subList(end, start));
+
+                }
 
             } else {
                 ArrayList<String> stcode = new ArrayList<String>();

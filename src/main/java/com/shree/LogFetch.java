@@ -28,6 +28,7 @@ public class LogFetch {
     List<String> streamFlag = db.indexTreeList("streamFlag", Serializer.STRING).createOrOpen();
     streamFlag.add("added");
     HTreeMap.KeySet<String> ipDBLogs = db.get("IP");
+    SingletonClass sc = SingletonClass.getInstance();
 
     String zeroTo255 = "(\\d{1,2}|(0|1)\\" + "d{2}|2[0-4]\\d|25[0-5])";
         String IPV4_REGEX = zeroTo255 + "\\." + zeroTo255 + "\\." + zeroTo255 + "\\." + zeroTo255;
@@ -80,12 +81,15 @@ public class LogFetch {
 
                         tempDate = s;
                         dates.add(tempDate);
+                        sc.datesList.add(tempDate);
+
 
                     }
                     Matcher matcher2 = timePattern.matcher(s);
                     if (matcher2.matches()) {
                         tempTime = s;
                         time.add(tempTime);
+                        sc.timeList.add(tempTime);
                     } else {
                     }
                     Matcher matcher3 = ipv4Pattern.matcher(s);
@@ -99,20 +103,24 @@ public class LogFetch {
 
                         if (flag == 1) {
                             ipSource.add(s);
+                            sc.sourceList.add(s);
 
                             flag = 0;
                         } else if (flag == 0) {
                             ipDestination.add(s);
+                            sc.destinationList.add(s);
                             flag = 1;
                         }
                     } else {
-                        // System.out.println("E");
+                        System.out.println("E");
                     }
                 }
                 if (ipDBLogs.contains(ipSource.get(i)) || ipDBLogs.contains(ipDestination.get(i))) {
                     f.add("1");
+                    sc.flagList.add("1");
                 } else {
                     f.add("0");
+                    sc.flagList.add("0");
                 }
                 i = i + 1;
                 index.add(Integer.toString(i));

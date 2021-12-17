@@ -1,6 +1,7 @@
-com\shree\APIClass.class
 com\shree\FileChangeDectector.class
 com\shree\LogFetch.class
-com\shree\LiveFeed.class
+com\shree\SingletonClass.class
 com\shree\BackgroundListner.class
+com\shree\APIClass.class
+com\shree\LiveFeed.class
 com\shree\SomeDailyJob.class
