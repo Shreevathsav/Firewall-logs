@@ -16,7 +16,7 @@ import java.util.regex.Matcher;
 public class LogFetch {
    public void fetchLogs(){
        System.out.println("inside fetch");
-    DB db = DBMaker.fileDB("MalisiousFirewall.db").fileMmapEnableIfSupported().fileLockWait()
+    DB db = DBMaker.fileDB("MalisiousFirewallsix.db").fileMmapEnableIfSupported().fileLockWait()
     .make();
     System.out.println("after db");
     List<String> index = db.indexTreeList("SerialNo", Serializer.STRING).createOrOpen();
@@ -25,7 +25,7 @@ public class LogFetch {
     List<String> time = db.indexTreeList("time", Serializer.STRING).createOrOpen();
     List<String> ipSource = db.indexTreeList("Source", Serializer.STRING).createOrOpen();
     List<String> ipDestination = db.indexTreeList("Destination", Serializer.STRING).createOrOpen();
-    List<String> streamFlag = db.indexTreeList("streamFlag", Serializer.STRING).createOrOpen();
+    List<String> streamFlag = db.indexTreeList("stream", Serializer.STRING).createOrOpen();
     streamFlag.add("added");
     HTreeMap.KeySet<String> ipDBLogs = db.get("IP");
     SingletonClass sc = SingletonClass.getInstance();
@@ -48,7 +48,7 @@ public class LogFetch {
             int skip;
 
             List<String> tempLines = br.lines().toList();
-            System.out.println(tempLines.size() - 5);
+            System.out.println(tempLines.size());
             System.out.println(index.size());
             if ((tempLines.size() - 5) < index.size()) {
                 skip = 0;
@@ -59,9 +59,9 @@ public class LogFetch {
             System.out.println("skip " + skip);
             br.close();
             List<String> str = tempLines.subList(skip, tempLines.size());
+            System.out.println(str);
             System.out.println(str.size());
             for (String strLine : str) {
-                System.out.println("Hi");
                 int flag = 1;
                 String[] splited = strLine.split("\\s+");
                 Pattern ipv4Pattern = Pattern.compile(IPV4_REGEX);
@@ -75,21 +75,23 @@ public class LogFetch {
                 String tempTime = null;
                 int i = 0;
                 for (String s : splited) {
-
+                    System.out.println(s);
                     Matcher matcher1 = datePattern.matcher(s);
                     if (matcher1.matches()) {
 
                         tempDate = s;
+                        System.out.println(tempDate);
                         dates.add(tempDate);
-                        sc.datesList.add(tempDate);
+                        // sc.datesList.add(tempDate);
 
 
                     }
                     Matcher matcher2 = timePattern.matcher(s);
                     if (matcher2.matches()) {
                         tempTime = s;
+                        System.out.println(tempTime);
                         time.add(tempTime);
-                        sc.timeList.add(tempTime);
+                        // sc.timeList.add(tempTime);
                     } else {
                     }
                     Matcher matcher3 = ipv4Pattern.matcher(s);
@@ -97,18 +99,23 @@ public class LogFetch {
                     Matcher matcher5 = ipv6Pattern2.matcher(s);
                     Matcher matcher6 = ipv6Pattern3.matcher(s);
                     Matcher matcher10 = ipv6Pattern4.matcher(s);
+                    System.out.println(s);
+                    System.out.println(matcher3.matches());
+                    System.out.println(matcher4.matches());
+                    System.out.println(matcher5.matches());
+                    System.out.println(matcher6.matches());
                     if (matcher4.matches() || matcher3.matches() || matcher5.matches()
                             || matcher6.matches()
                             || matcher10.matches()) {
-
+                                System.out.println("ip");
                         if (flag == 1) {
                             ipSource.add(s);
-                            sc.sourceList.add(s);
+                            // sc.sourceList.add(s);
 
                             flag = 0;
                         } else if (flag == 0) {
                             ipDestination.add(s);
-                            sc.destinationList.add(s);
+                            // sc.destinationList.add(s);
                             flag = 1;
                         }
                     } else {
@@ -120,7 +127,7 @@ public class LogFetch {
                     sc.flagList.add("1");
                 } else {
                     f.add("0");
-                    sc.flagList.add("0");
+                    // sc.flagList.add("0");
                 }
                 i = i + 1;
                 index.add(Integer.toString(i));
@@ -131,6 +138,7 @@ public class LogFetch {
             System.err.println("Error: " + e.getMessage());
         }
         System.out.println("done adding flags");
+        System.out.println("onchange"+streamFlag.size());
         db.close();
 
    } 

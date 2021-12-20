@@ -3,10 +3,8 @@ package com.shree;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -37,9 +35,11 @@ public class APIClass extends HttpServlet {
         String filterValue = request.getParameter("filterValue");
         System.out.println(rcrdsPerPage);
 
-        DB db = DBMaker.fileDB("MalisiousFirewall.db").fileMmapEnableIfSupported().fileLockWait()
+        DB db = DBMaker.fileDB("MalisiousFirewallsix.db").fileMmapEnableIfSupported().fileLockWait()
                 .make();
         System.out.println("done initializing");
+        List<String> streamFlag = db.indexTreeList("stream", Serializer.STRING).createOrOpen();
+            System.out.println("size1 "+streamFlag.size());
         List<String> f = db.indexTreeList("maliciousFlag", Serializer.STRING).createOrOpen();
         List<String> dates = db.indexTreeList("dates", Serializer.STRING).createOrOpen();
         List<String> time = db.indexTreeList("time", Serializer.STRING).createOrOpen();
@@ -80,7 +80,7 @@ public class APIClass extends HttpServlet {
                 else if (!(file.exists())) {
                     status = "402";
                 } else {
-                    status = "500";
+                    status = "501";
                 }
                 System.out.println(status);
             } catch (Exception e) {
@@ -94,8 +94,6 @@ public class APIClass extends HttpServlet {
 
                     firewallLogs.put("status", stcode);
                 } else {
-
-                    System.out.println("after no_of pags");
                     int start;
                     int end;
                     int tempstart = 0;
@@ -106,52 +104,57 @@ public class APIClass extends HttpServlet {
                             tempstart = dates.indexOf(filterValue);
                             tempend = dates.lastIndexOf(filterValue) + 1;
                         }
-                    } else if (filterType != null && filterType.equals("time")) {
-                        Date date = new java.util.Date();
-                        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-                        String timeNow = sdf.format(date);
-                        System.out.println(timeNow);
-
-                    }
-
-                    List<String> tempDates = dates.subList(tempstart, tempend);
-                    List<String> tempTime = time.subList(tempstart, tempend);
-                    List<String> tempipSource = ipSource.subList(tempstart, tempend);
-                    List<String> tempiDestination = ipDestination.subList(tempstart, tempend);
-                    List<String> flag = f.subList(tempstart, tempend);
-                    System.out.println(tempipSource.size());
-                    int no_of_pages = tempipSource.size() / rcrdPerPage;
-                    if (no_of_pages * rcrdPerPage < tempipSource.size()) {
-                        no_of_pages = no_of_pages + 1;
-                    }
-                    if (tempDates.size() % rcrdPerPage == 0) {
-
-                        start = (((no_of_pages - Integer.parseInt(currentPage)) + 1) * rcrdPerPage);
-                        end = start - rcrdPerPage;
-
-                    } else {
-                        start = (((no_of_pages - Integer.parseInt(currentPage))) * rcrdPerPage
-                                + (tempDates.size() % rcrdPerPage));
-                        end = start - rcrdPerPage;
-                        if (end < 0) {
-                            end = 0;
+                        else{
+                            tempstart=-1;
                         }
+                    } 
+                   
+                    if(tempstart==-1){
+                        List<String> statusCode = new ArrayList<String>();
+                        statusCode.add("404");
+                        firewallLogs.put("status", statusCode);
                     }
-                    System.out.println("after start");
-                    System.out.println(end + " " + start);
-                    List<String> totalPages = new ArrayList<String>();
-                    totalPages.add(Integer.toString(no_of_pages));
-                    List<String> statusCode = new ArrayList<String>();
-                    statusCode.add("200");
-                    System.out.println("testing");
-                    firewallLogs.put("totalPages", totalPages);
-                    firewallLogs.put("status", statusCode);
-                    firewallLogs.put("date", tempDates.subList(end, start));
-                    firewallLogs.put("time", tempTime.subList(end, start));
-                    firewallLogs.put("IPSrc", tempipSource.subList(end, start));
-                    firewallLogs.put("IPDest", tempiDestination.subList(end, start));
-                    firewallLogs.put("FLAG", flag.subList(end, start));
-
+                    else{
+                        List<String> tempDates = dates.subList(tempstart, tempend);
+                        List<String> tempTime = time.subList(tempstart, tempend);
+                        List<String> tempipSource = ipSource.subList(tempstart, tempend);
+                        List<String> tempiDestination = ipDestination.subList(tempstart, tempend);
+                        List<String> flag = f.subList(tempstart, tempend);
+                        System.out.println(tempipSource.size());
+                        int no_of_pages = tempipSource.size() / rcrdPerPage;
+                        if (no_of_pages * rcrdPerPage < tempipSource.size()) {
+                            no_of_pages = no_of_pages + 1;
+                        }
+                        if (tempDates.size() % rcrdPerPage == 0) {
+    
+                            start = (((no_of_pages - Integer.parseInt(currentPage)) + 1) * rcrdPerPage);
+                            end = start - rcrdPerPage;
+    
+                        } else {
+                            start = (((no_of_pages - Integer.parseInt(currentPage))) * rcrdPerPage
+                                    + (tempDates.size() % rcrdPerPage));
+                            end = start - rcrdPerPage;
+                            if (end < 0) {
+                                end = 0;
+                            }
+                        }
+                        System.out.println("after start");
+                        System.out.println(end + " " + start);
+                        List<String> totalPages = new ArrayList<String>();
+                        totalPages.add(Integer.toString(no_of_pages));
+                        List<String> statusCode = new ArrayList<String>();
+                        statusCode.add("200");
+                        System.out.println("testing");
+                        firewallLogs.put("totalPages", totalPages);
+                        firewallLogs.put("status", statusCode);
+                        firewallLogs.put("date", tempDates.subList(end, start));
+                        firewallLogs.put("time", tempTime.subList(end, start));
+                        firewallLogs.put("IPSrc", tempipSource.subList(end, start));
+                        firewallLogs.put("IPDest", tempiDestination.subList(end, start));
+                        firewallLogs.put("FLAG", flag.subList(end, start));
+    
+                    }
+                   
                 }
 
             } else {

@@ -1,6 +1,11 @@
 package com.shree;
 
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -19,19 +24,33 @@ import org.mapdb.Serializer;
 
 
 public class FileChangeDectector {
-    public void test(){
+    public void test() throws IOException{
         System.out.println("inside file change event");
        
-        DB db = DBMaker.fileDB("MalisiousFirewall.db").fileMmapEnableIfSupported().fileLockWait()
+        DB db = DBMaker.fileDB("MalisiousFirewallsix.db").fileMmapEnableIfSupported().fileLockWait()
         .make();
+        List<String> index = db.indexTreeList("SerialNo", Serializer.STRING).createOrOpen();
         List<String> dates = db.indexTreeList("dates", Serializer.STRING).createOrOpen(); 
-        if(dates.size()==0){
+        FileInputStream fstream = new FileInputStream(
+                    "C:\\Windows\\System32\\LogFiles\\Firewall\\pfirewall.log.txt");
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
+
+            List<String> tempLines = br.lines().toList();
+            System.out.println(tempLines.size());
+            System.out.println(index.size());
+            br.close();
+        if(dates.size()==0 && index.size()<(tempLines.size()-5)){
             System.out.print("inside dates");
             db.close();
             LogFetch log = new LogFetch();
                    log.fetchLogs();
                    
         } 
+        else if(index.size()>(tempLines.size()-5)){
+            index.clear();
+            db.close();
+        }
         else{
             db.close();
         } 

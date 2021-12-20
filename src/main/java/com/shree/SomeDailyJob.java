@@ -357,10 +357,10 @@ public class SomeDailyJob implements Runnable {
 
     synchronized public void run() {
         System.out.println("hi");
-        DB db = DBMaker.fileDB("MalisiousFirewall.db").fileMmapEnable().fileLockWait().make();
+        DB db = DBMaker.fileDB("MalisiousFirewallsix.db").fileMmapEnable().fileLockWait().make();
         IndexTreeList<Date> oldTime = db.indexTreeList("syncTime",Serializer.DATE).createOrOpen();
         long diff ;
-        if(oldTime.size()>0){
+        if(oldTime!=null && oldTime.size()>0){
             Map<String, Object> test = db.getAll();
                 System.out.println(test);
             Date oldDate = oldTime.get(0);
@@ -446,7 +446,12 @@ public class SomeDailyJob implements Runnable {
         db.close();
         System.out.println("db closed");
         FileChangeDectector f = new FileChangeDectector();
-        f.test();
+        try {
+            f.test();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
        
             }

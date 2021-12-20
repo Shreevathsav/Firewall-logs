@@ -55,7 +55,7 @@ table td {
     display: none;
 }
 
-#display-error {
+.display-error {
     width: 700px;
     border: 1px solid #D8D8D8;
     padding: 5px;
@@ -72,14 +72,20 @@ img {
     float: left;
 }
 
-#error-icon {
+.error-icon {
     font-size: 40px;
 }
 
-#error-icon i {
+.error-icon i {
     color: red;
     size: 40px;
 }
+
+
+/* #error-icon-tab2 i {
+    color: red;
+    size: 40px;
+} */
 
 .page-link {
     position: relative;
@@ -164,6 +170,14 @@ select {
     border: 1px solid #ccc;
     cursor: pointer;
     outline: none;
+}
+
+.text {
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: large;
+    font-weight: bold;
+    padding-top: 2%;
 }
 
 ul li a {

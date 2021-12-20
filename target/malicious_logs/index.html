@@ -95,6 +95,16 @@
         >
           Stop-Logging</button
         ><br />
+        <div id="text" class="text"></div>
+      
+          <center>
+            <div class="error error-icon" id="error-icon-tab1">
+              <i class="fas fa-exclamation-triangle"></i><br />
+            </div>
+            <div class="error display-error" id="display-error-tab1"></div>
+            <br />
+          </center>
+  
         <table class="table table-striped table-hover" id="feedTable"></table>
       </div>
 
@@ -155,15 +165,15 @@
           </div>
         </div>
         <div id="log">
-            
+          <center>
+            <div class="error error-icon" id="error-icon-tab2">
+              <i class="fas fa-exclamation-triangle"></i><br />
+            </div>
+            <div class="error display-error" id="display-error-tab2"></div>
+            <br />
+          </center>
         </div>
-        <center>
-          <div class="error" id="error-icon">
-            <i class="fas fa-exclamation-triangle"></i><br />
-          </div>
-          <div class="error" id="display-error"></div>
-          <br />
-        </center>
+         
 
         <div hidden id="spinner"></div>
       </div>
@@ -288,19 +298,17 @@
 
     <script>
       var event = null;
-      var currentPageNo=1;
+      var currentPageNo = 1;
       var feedTable = document.getElementById("feedTable");
 
       function submitFilter() {
-          currentPageNo=1;
+        currentPageNo = 1;
         var date = document.getElementById("byDate");
         if (!date.classList.contains("error")) {
           var inputDate = document.getElementById("date");
           console.log(inputDate.value);
-          div = document.getElementById("log");
-          div.innerHTML = " ";
           spinner.removeAttribute("hidden");
-            console.log(currentPageNo);
+          console.log(currentPageNo);
           let url =
             "http://localhost:8080/malicious_logs/FirewallLogs?filterType=date&filterValue=" +
             inputDate.value +
@@ -313,19 +321,16 @@
               if (d.status[0] == "200") {
                 div = document.getElementById("log");
                 div.innerHTML = " ";
-
                 let totalPages = parseInt(d.totalPages[0]);
                 console.log(totalPages);
-                if(currentPageNo=="1"){
-                    getPages(totalPages);
+                if (currentPageNo == "1") {
+                  getPages(totalPages);
                 }
-                
               }
 
               firewall_logs(d);
             });
-        } 
-        else {
+        } else {
           onLoadFinished();
         }
       }
@@ -337,13 +342,14 @@
           div = document.getElementById("log");
           div.innerHTML = " ";
           spinner.removeAttribute("hidden");
-            console.log(currentPageNo);
+          console.log(currentPageNo);
           let url =
             "http://localhost:8080/malicious_logs/FirewallLogs?filterType=date&filterValue=" +
             inputDate.value +
             "&rcrdsPerPage=" +
             recordsPerPage +
-            "&currentPage="+currentPageNo;
+            "&currentPage=" +
+            currentPageNo;
           fetch(url)
             .then((response) => response.json())
             .then((d) => {
@@ -353,16 +359,14 @@
 
                 let totalPages = parseInt(d.totalPages[0]);
                 console.log(totalPages);
-                if(currentPageNo=="1"){
-                    getPages(totalPages);
+                if (currentPageNo == "1") {
+                  getPages(totalPages);
                 }
-                
               }
 
               firewall_logs(d);
             });
-        } 
-        else {
+        } else {
           onLoadFinished();
         }
       }
@@ -371,13 +375,11 @@
         var date = document.getElementById("byDate");
         var time = document.getElementById("byTime");
         console.log(value);
-         if (value == "Date") {
-          
+        if (value == "Date") {
           if (date.classList.contains("error")) {
             date.classList.remove("error");
           }
         } else {
-         
           if (!date.classList.contains("error")) {
             date.classList.add("error");
           }
@@ -385,53 +387,144 @@
       }
 
       function startMonitoring() {
-        feedTable.innerHTML = " ";
+        
         start.disabled = true;
         console.log("monitering");
         event = new EventSource(
           "http://localhost:8080/malicious_logs/LiveFeed"
         );
+        event.onopen = function () {
+          let text = document.getElementById("text");
+          text.innerText="";
+          text.innerText = "Getting Logs..."
+        };
         event.onmessage = function (eventFetch) {
           console.log("message");
           var jsonData = JSON.parse(eventFetch.data);
           console.log(jsonData);
           var keys = Object.keys(jsonData);
           console.log(keys);
-          if (true) {
+          if (jsonData.status[0] == "200") {
+            console.log("inside")
             feedTable.innerHTML = "";
-            if (feedTable.rows.length == 0) getTableHead(keys);
             getTableBody(keys, jsonData);
+          }
+          else if(jsonData.status[0] == "500"){
+
+          }
+          else {
+            stopMonitoring();
+            handleErrorTab1(jsonData);
           }
         };
       }
 
-      function getTableHead(keys) {
-        var row = feedTable.insertRow(0);
-        var i=0;
-        while(i<keys.length){
-            cell = row.insertCell(i);
-            cell.innerHTML=keys[i++];
-        }
-      }
-
       function getTableBody(keys, jsonData) {
-                var row = feedTable.insertRow(1);
-                var i = 0;
-                while(i<keys.length){
-                    cell = row.insertCell(i);
-                    cell.innerHTML=jsonData[keys[i++]];
-                    console.log(jsonData.flag);
-                }
-                if(feedTable.rows.length==100){
-                    feedTable.deleteRow(99);
-                }
-              }
+        feedTable.innerHTML = " ";
+        heading = ["Date", "Time", "Source-IP", "Destination-IP", "Status"];
+        var tr = feedTable.insertRow(-1);
+        for (let i = 0; i < 5; i++) {
+          var th = document.createElement("th");
+          th.innerHTML = heading[i];
+          tr.appendChild(th);
+        }
+        var rowCnt = feedTable.rows.length;
+        var tr = feedTable.insertRow(rowCnt);
 
+        var tbody = document.createElement("tbody");
+        if (jsonData.IPDest.length == 0) {
+          var row = document.createElement("tr");
+          var cell = document.createElement("td");
+          h4 = document.createElement("h4");
+          h4.innerText = "No Logs";
+          cell.appendChild(h4);
+          row.appendChild(cell);
+          var cell1 = document.createElement("td");
+          h4 = document.createElement("h4");
+          h4.innerText = "-";
+          cell1.appendChild(h4);
+          row.appendChild(cell1);
+          tbody.appendChild(row);
+          var cell1 = document.createElement("td");
+          h4 = document.createElement("h4");
+          h4.innerText = "-";
+          cell1.appendChild(h4);
+          row.appendChild(cell1);
+          tbody.appendChild(row);
+          var cell1 = document.createElement("td");
+          h4 = document.createElement("h4");
+          h4.innerText = "-";
+          cell1.appendChild(h4);
+          row.appendChild(cell1);
+          tbody.appendChild(row);
+          var cell1 = document.createElement("td");
+          h4 = document.createElement("h4");
+          h4.innerText = "-";
+          cell1.appendChild(h4);
+          row.appendChild(cell1);
+          tbody.appendChild(row);
+        } else {
+          for (var i = jsonData.IPDest.length - 1; i >= 0; i--) {
+            var row = document.createElement("tr");
+            var cell2 = document.createElement("td");
+            h1 = document.createElement("h4");
+            h1.innerHTML = jsonData.date[i];
+            cell2.appendChild(h1);
+            row.appendChild(cell2);
+            var cell = document.createElement("td");
+            h2 = document.createElement("h4");
+            h2.innerHTML = jsonData.time[i];
+            cell.appendChild(h2);
+            row.appendChild(cell);
+            var cell1 = document.createElement("td");
+            h3 = document.createElement("h4");
+            h3.innerText = jsonData.IPSrc[i];
+            cell1.appendChild(h3);
+            row.appendChild(cell1);
+            var cell3 = document.createElement("td");
+            h4 = document.createElement("h4");
+            h4.innerHTML = jsonData.IPDest[i];
+            cell3.appendChild(h4);
+            row.appendChild(cell3);
+            var cell4 = document.createElement("td");
+            h5 = document.createElement("h4");
+            if (jsonData.FLAG[i] == "1") {
+              h5.innerHTML =
+                '<i class="fas fa-exclamation-triangle" aria-hidden="true"></i>';
+            } else {
+              h5.innerHTML =
+                '<i class="fas fa-check-circle" aria-hidden="true"></i>';
+            }
+            cell4.appendChild(h5);
+            row.appendChild(cell4);
+
+            if (jsonData.FLAG[i] == "1") {
+              cell.style.color = "#FF0000";
+              cell1.style.color = "#FF0000";
+              cell2.style.color = "#FF0000";
+              cell3.style.color = "#FF0000";
+              cell4.style.color = "#FF0000";
+            } else {
+              cell.style.color = "#4E9F3D";
+              cell1.style.color = "#4E9F3D";
+              cell2.style.color = "#4E9F3D";
+              cell3.style.color = "#4E9F3D";
+              cell4.style.color = "#4E9F3D";
+            }
+            row.classList.add("content");
+            tbody.appendChild(row);
+          }
+        }
+        tbody.setAttribute("id", "tbody");
+        feedTable.appendChild(tbody);
+      }
       function stopMonitoring() {
         if (event != null) {
           event.close();
         }
-
+        text = document.getElementById("text");
+        text.innerText = "";
+        text.innerText = "Logs";
         start.disabled = false;
       }
       let tabLoded = 0;
@@ -439,12 +532,12 @@
       const spinner = document.getElementById("spinner");
 
       function onTabchanged() {
+        text.innerText = "";
+        text.innerText = "Logs";
         if (event != null) {
           event.close();
         }
         start.disabled = false;
-        if (tabLoded == 0) {
-          tabLoded = 1;
           spinner.removeAttribute("hidden");
           let url =
             "http://localhost:8080/malicious_logs/FirewallLogs?firstCall=true";
@@ -455,7 +548,7 @@
                 getStixData(d);
               }
             });
-        }
+        
       }
 
       function onLoadFinished() {
@@ -469,13 +562,10 @@
           .then((response) => response.json())
           .then((d) => {
             if (d.status[0] == "200") {
-              div = document.getElementById("log");
-              div.innerHTML = " ";
-
+             
               let totalPages = parseInt(d.totalPages[0]);
               console.log(totalPages);
-              if(currentPageNo=="1")
-              getPages(totalPages);
+              if (currentPageNo == "1") getPages(totalPages);
             }
 
             firewall_logs(d);
@@ -488,8 +578,11 @@
         spinner.setAttribute("hidden", "");
 
         if (res.status[0] != "200") {
-          handleError(res);
+          handleErrorTab2(res);
         } else {
+          div = document.getElementById("log");
+          div.innerHTML = " ";
+
           var dupTable = document.createElement("table");
           dupTable.setAttribute("id", "logTable");
           heading = ["Date", "Time", "Source-IP", "Destination-IP", "Status"];
@@ -645,11 +738,9 @@
         div1.innerHTML = " ";
         div1.appendChild(asnTable);
       }
-
-      function handleError(res) {
-        error = document.getElementById("display-error");
-        console.log(error);
-        errorIcon = document.getElementById("error-icon");
+      function handleErrorTab1(res) {
+        error = document.getElementById("display-error-tab1");
+        errorIcon = document.getElementById("error-icon-tab1");
         if (res.status[0] == "402") {
           error.innerText =
             'Turn on Windows firewall logging\nSteps:\n1.Go to Start and open Control Panel. Select System and Security > Windows Defender Firewall. Choose Turn Windows Firewall on or off. Select Turn on Windows Firewall for domain, private, and public network settings.\n2.Open Windows Firewall with Advanced Security. Right-Click on Windows Firewall with Advanced Security and go to Properties.\n3.Click domain/ private/public(based on your network)  > Logging > Customize\n4.Go under “Log Dropped Packets” and switch to Yes.\n5.Go under “Log Sucessfull Packets” and switch to Yes.\n6.Press ok.\n\nThe default location of file would be " %systemroot%\\system32\n\\LogFiles\\Firewall\n\\pfirewall.log"';
@@ -664,7 +755,47 @@
             'Run the web app as administrator\n\nTurn on Windows firewall logging\nSteps:\n1.Go to Start and open Control Panel. Select System and Security > Windows Defender Firewall. Choose Turn Windows Firewall on or off. Select Turn on Windows Firewall for domain, private, and public network settings.\n2.Open Windows Firewall with Advanced Security. Right-Click on Windows Firewall with Advanced Security and go to Properties.\n3.Click domain/ private/public(based on your network) > Logging > Customize\n4.Go under “Log Dropped Packets” and switch to Yes.\n5.Go under “Log Sucessfull Packets” and switch to Yes.\n6.Press ok.\n\nThe default location of file would be " %systemroot%\\system32\n\\LogFiles\\Firewall\n\\pfirewall.log"';
           error.classList.remove("error");
           errorIcon.classList.remove("error");
-        } else {
+        }else if(res.status[0]=="404"){
+          console.log(res.status[0]);
+          
+          error.innerText =
+            'No logs on specified date';
+          error.classList.remove("error");
+          errorIcon.classList.remove("error");
+        } 
+        else {
+          error.innerText =
+            "Wait for few minutes and then refresh the website!";
+          error.classList.remove("error");
+          errorIcon.classList.remove("error");
+        }
+      }
+      function handleErrorTab2(res) {
+        error = document.getElementById("display-error-tab2");
+        errorIcon = document.getElementById("error-icon-tab2");
+        if (res.status[0] == "402") {
+          error.innerText =
+            'Turn on Windows firewall logging\nSteps:\n1.Go to Start and open Control Panel. Select System and Security > Windows Defender Firewall. Choose Turn Windows Firewall on or off. Select Turn on Windows Firewall for domain, private, and public network settings.\n2.Open Windows Firewall with Advanced Security. Right-Click on Windows Firewall with Advanced Security and go to Properties.\n3.Click domain/ private/public(based on your network)  > Logging > Customize\n4.Go under “Log Dropped Packets” and switch to Yes.\n5.Go under “Log Sucessfull Packets” and switch to Yes.\n6.Press ok.\n\nThe default location of file would be " %systemroot%\\system32\n\\LogFiles\\Firewall\n\\pfirewall.log"';
+          error.classList.remove("error");
+          errorIcon.classList.remove("error");
+        } else if (res.status[0] == "401") {
+          error.innerText = "Run the web app as administrator";
+          error.classList.remove("error");
+          errorIcon.classList.remove("error");
+        } else if (res.status[0] == "400") {
+          error.innerText =
+            'Run the web app as administrator\n\nTurn on Windows firewall logging\nSteps:\n1.Go to Start and open Control Panel. Select System and Security > Windows Defender Firewall. Choose Turn Windows Firewall on or off. Select Turn on Windows Firewall for domain, private, and public network settings.\n2.Open Windows Firewall with Advanced Security. Right-Click on Windows Firewall with Advanced Security and go to Properties.\n3.Click domain/ private/public(based on your network) > Logging > Customize\n4.Go under “Log Dropped Packets” and switch to Yes.\n5.Go under “Log Sucessfull Packets” and switch to Yes.\n6.Press ok.\n\nThe default location of file would be " %systemroot%\\system32\n\\LogFiles\\Firewall\n\\pfirewall.log"';
+          error.classList.remove("error");
+          errorIcon.classList.remove("error");
+        }else if(res.status[0]=="404"){
+          console.log(res.status[0]);
+
+          error.innerText =
+            'No logs on specified date';
+          error.classList.remove("error");
+          errorIcon.classList.remove("error");
+        } 
+        else {
           error.innerText =
             "Wait for few minutes and then refresh the website!";
           error.classList.remove("error");
@@ -714,7 +845,7 @@
       select.onchange = () => {
         console.log(select.value);
         recordsPerPage = select.value;
-        currentPageNo=1;
+        currentPageNo = 1;
         submitFilter();
       };
 
@@ -844,21 +975,21 @@
         });
       }
 
-    //   function getData(item) {
-    //     div = document.getElementById("log");
-    //     div.innerHTML = " ";
-    //     spinner.removeAttribute("hidden");
-    //     console.log(item);
-    //     let url =
-    //       "http://localhost:8080/malicious_logs/FirewallLogs?rcrdsPerPage=" +
-    //       recordsPerPage +
-    //       "&currentPage=" +
-    //       item;
-    //     console.log(url);
-    //     fetch(url)
-    //       .then((response) => response.json())
-    //       .then((d) => firewall_logs(d));
-    //   }
+      //   function getData(item) {
+      //     div = document.getElementById("log");
+      //     div.innerHTML = " ";
+      //     spinner.removeAttribute("hidden");
+      //     console.log(item);
+      //     let url =
+      //       "http://localhost:8080/malicious_logs/FirewallLogs?rcrdsPerPage=" +
+      //       recordsPerPage +
+      //       "&currentPage=" +
+      //       item;
+      //     console.log(url);
+      //     fetch(url)
+      //       .then((response) => response.json())
+      //       .then((d) => firewall_logs(d));
+      //   }
     </script>
   </body>
 </html>
