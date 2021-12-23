@@ -15,8 +15,8 @@ import java.util.regex.Matcher;
 
 public class LogFetch {
    public void fetchLogs(){
-       System.out.println("inside fetch");
-    DB db = DBMaker.fileDB("MalisiousFirewallsix.db").fileMmapEnableIfSupported().fileLockWait()
+    System.out.println("inside fetch");
+    DB db = DBMaker.fileDB("MalisiousFirewallnine.db").fileMmapEnableIfSupported().fileLockWait()
     .make();
     System.out.println("after db");
     List<String> index = db.indexTreeList("SerialNo", Serializer.STRING).createOrOpen();
@@ -28,7 +28,6 @@ public class LogFetch {
     List<String> streamFlag = db.indexTreeList("stream", Serializer.STRING).createOrOpen();
     streamFlag.add("added");
     HTreeMap.KeySet<String> ipDBLogs = db.get("IP");
-    SingletonClass sc = SingletonClass.getInstance();
 
     String zeroTo255 = "(\\d{1,2}|(0|1)\\" + "d{2}|2[0-4]\\d|25[0-5])";
         String IPV4_REGEX = zeroTo255 + "\\." + zeroTo255 + "\\." + zeroTo255 + "\\." + zeroTo255;
@@ -124,7 +123,7 @@ public class LogFetch {
                 }
                 if (ipDBLogs.contains(ipSource.get(i)) || ipDBLogs.contains(ipDestination.get(i))) {
                     f.add("1");
-                    sc.flagList.add("1");
+                    // sc.flagList.add("1");
                 } else {
                     f.add("0");
                     // sc.flagList.add("0");

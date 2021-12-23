@@ -3,7 +3,6 @@ package com.shree;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.FileSystems;
@@ -27,7 +26,7 @@ public class FileChangeDectector {
     public void test() throws IOException{
         System.out.println("inside file change event");
        
-        DB db = DBMaker.fileDB("MalisiousFirewallsix.db").fileMmapEnableIfSupported().fileLockWait()
+        DB db = DBMaker.fileDB("MalisiousFirewallnine.db").fileMmapEnableIfSupported().fileLockWait()
         .make();
         List<String> index = db.indexTreeList("SerialNo", Serializer.STRING).createOrOpen();
         List<String> dates = db.indexTreeList("dates", Serializer.STRING).createOrOpen(); 

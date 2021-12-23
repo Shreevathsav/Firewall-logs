@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -24,6 +26,7 @@ import org.mapdb.HTreeMap;
 import org.mapdb.IndexTreeList;
 import org.mapdb.Serializer;
 import org.mapdb.HTreeMap.KeySet;
+import org.mapdb.serializer.SerializerArray;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -357,25 +360,24 @@ public class SomeDailyJob implements Runnable {
 
     synchronized public void run() {
         System.out.println("hi");
-        DB db = DBMaker.fileDB("MalisiousFirewallsix.db").fileMmapEnable().fileLockWait().make();
-        IndexTreeList<Date> oldTime = db.indexTreeList("syncTime",Serializer.DATE).createOrOpen();
-        long diff ;
-        if(oldTime!=null && oldTime.size()>0){
+        DB db = DBMaker.fileDB("MalisiousFirewallnine.db").fileMmapEnable().fileLockWait().make();
+        IndexTreeList<Date> oldTime = db.indexTreeList("syncTime", Serializer.DATE).createOrOpen();
+        long diff;
+        if (oldTime != null && oldTime.size() > 0) {
             Map<String, Object> test = db.getAll();
-                System.out.println(test);
+            System.out.println(test);
             Date oldDate = oldTime.get(0);
             Date newDate = new Date();
             long diffInMillies = Math.abs(newDate.getTime() - oldDate.getTime());
             diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-            System.out.println("difference"+diff);
+            System.out.println("difference" + diff);
+        } else {
+            diff = 1;
+            System.out.println("hi" + diff);
         }
-        else{
-            diff=1;
-            System.out.println(diff);
-        }
-        if(diff>=1){
-            if (data.size() > 0) {
-                data.clear();
+        if (diff >= 1) {
+            if (oldTime.size() > 0) {
+                oldTime.clear();
             }
             System.out.println("worked");
             SomeDailyJob apIcall = new SomeDailyJob();
@@ -388,63 +390,100 @@ public class SomeDailyJob implements Runnable {
                 e.printStackTrace();
             }
             System.out.println("initializing db");
-            
+
             System.out.println("created db");
-            HTreeMap.KeySet<String> ipLogs = db.get("IP");
-            HTreeMap.KeySet<String> hashes = db.get("Hashes");
-            HTreeMap.KeySet<String> urls = db.get("url");
-            HTreeMap.KeySet<String> domain = db.get("Domain");
-            HTreeMap.KeySet<String> asn = db.get("ASN");
             Set<String> keys = data.keySet();
             System.out.println("done getting");
             if (data.get("Status1").get(0) == "200" || data.get("Status2").get(0) == "200"
                     || data.get("Status3").get(0) == "200") {
                 System.out.println("done if");
-                if (ipLogs != null && ipLogs.size() > 0 && data.containsKey("IP")) {
-                    ipLogs.clear();
-                }
-                if (hashes != null && hashes.size() > 0 && data.containsKey("Hashes")) {
-                    hashes.clear();
-                }
-                if (urls != null && urls.size() > 0 && data.containsKey("url")) {
-                    urls.clear();
-                }
-                if (domain != null && domain.size() > 0 && data.containsKey("Domain")) {
-                    domain.clear();
-                }
-                if (asn != null && asn.size() > 0 && data.containsKey("ASN")) {
-                    asn.clear();
-                }
+
+                // if (ipLogs != null && ipLogs.size() > 0 && data.containsKey("IP")) {
+                //     ipLogs.clear();
+                // }
+                // if (hashes != null && hashes.size() > 0 && data.containsKey("Hashes")) {
+                //     hashes.clear();
+                // }
+                // if (urls != null && urls.size() > 0 && data.containsKey("url")) {
+                //     urls.clear();
+                // }
+                // if (domain != null && domain.size() > 0 && data.containsKey("Domain")) {
+                //     domain.clear();
+                // }
+                // if (asn != null && asn.size() > 0 && data.containsKey("ASN")) {
+                //     asn.clear();
+                // }
+
                 System.out.println("done clearing");
-    
+
                 for (String k : keys) {
                     ArrayList<String> v = data.get(k);
-                    KeySet<String> map =db.hashSet(k).expireAfterCreate(1,TimeUnit.DAYS).serializer(Serializer.STRING).createOrOpen();
-    
-    
+                    HTreeMap<String, String> map = db.hashMap(k).expireAfterCreate(1, TimeUnit.DAYS).keySerializer(Serializer.STRING).valueSerializer(Serializer.STRING)
+                            .createOrOpen();
+                    
+
                     for (String val : v)
-                        map.add(val);
-    
+                        map.put(k,val);
+
                 }
                 System.out.println("done adding them to db");
                 Map<String, Object> test = db.getAll();
                 System.out.println(test);
 
                 Date now = new Date();
-                IndexTreeList<Date> newTime = db.indexTreeList("syncTime",Serializer.DATE).createOrOpen();
+                IndexTreeList<Date> newTime = db.indexTreeList("syncTime", Serializer.DATE).createOrOpen();
                 newTime.add(now);
-               
+
             }
-    
+
             if (data.size() > 0) {
                 data.clear();
             }
             System.out.println("work done");
-            
-    
+
         }
+        // KeySet<String> test1 =
+        // db.hashMap("test").expireAfterCreate(1,TimeUnit.SECONDS).expireAfterUpdate(1,TimeUnit.SECONDS).keySerializer(Serializer.STRING).createOrOpen();
+        // ScheduledExecutorService executor =
+        // Executors.newScheduledThreadPool(2);
+        // KeySet<String> test = db.hashSet("testing2")
+        // .expireAfterCreate()
+        // .expireAfterGet(1, TimeUnit.SECONDS).expireExecutor(executor)
+        // .expireExecutorPeriod(1000).serializer(Serializer.STRING).createOrOpen();
+        // test.add("test5");
+        // KeySet<String> temp = db.get("testing");
+        // System.out.println(test);
+        // try {
+        // Thread.sleep(3000);
+        // } catch (InterruptedException e1) {
+        // // TODO Auto-generated catch block
+        // e1.printStackTrace();
+        // }
+        // System.out.println(test);
+        // test.add("test2");
+        // System.out.println(test);
+        // HTreeMap cache = db
+        //         .hashMap("test3")
+        //         .expireAfterCreate(1, TimeUnit.SECONDS)
+        //         .createOrOpen();
+
+        // cache.put("hii", "hello1");
+
+        // try {
+        //     Thread.sleep(3000);
+        // } catch (InterruptedException e1) {
+        //     // TODO Auto-generated catch block
+        //     e1.printStackTrace();
+        // }
+        // System.out.println(cache.get("hii"));
+        // cache.put("hi", "hello2");
+        // System.out.println(cache.get("hi"));
+        // System.out.println(cache.get("hii"));
+
         db.close();
         System.out.println("db closed");
+        System.out.println("check");
+
         FileChangeDectector f = new FileChangeDectector();
         try {
             f.test();
@@ -453,7 +492,6 @@ public class SomeDailyJob implements Runnable {
             e.printStackTrace();
         }
 
-       
-            }
+    }
 
 }
