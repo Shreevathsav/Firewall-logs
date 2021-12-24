@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -16,7 +17,6 @@ import com.google.gson.Gson;
 
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
-import org.mapdb.HTreeMap;
 import org.mapdb.Serializer;
 import org.mapdb.serializer.SerializerArray;
 
@@ -28,7 +28,7 @@ public class LiveFeed extends HttpServlet{
         response.setCharacterEncoding("UTF-8");
         PrintWriter printWriter = null;
             String status = null;
-            DB db = DBMaker.fileDB("MalisiousFirewallnine.db").fileMmapEnableIfSupported().fileLockWait()
+            DB db = DBMaker.fileDB("MalisiousFirewallSSS.db").fileMmapEnableIfSupported().fileLockWait()
             .make();
             List<String> f = db.indexTreeList("maliciousFlag", SerializerArray.STRING).createOrOpen();
             List<String> dates = db.indexTreeList("dates", Serializer.STRING).createOrOpen();
@@ -65,9 +65,12 @@ public class LiveFeed extends HttpServlet{
             }
             if (status.equals("200")) {
                 System.out.println("size" + streamFlag.size());
-
-                HTreeMap.KeySet<String> ipDBLogs = db.get("IP");
-                if (ipDBLogs == null) {
+                Map<Integer,String> ipDBLogsMap = db.get("IP");
+                ArrayList<String> ipDBLogs = new ArrayList<String>();
+                for(int i : ipDBLogsMap.keySet()){
+                ipDBLogs.add(ipDBLogsMap.get(i));
+                }
+                if (ipDBLogs.size()==0) {
                     ArrayList<String> stcode = new ArrayList<String>();
                     stcode.add("403");
 

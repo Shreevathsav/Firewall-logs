@@ -26,7 +26,7 @@ public class FileChangeDectector {
     public void test() throws IOException{
         System.out.println("inside file change event");
        
-        DB db = DBMaker.fileDB("MalisiousFirewallnine.db").fileMmapEnableIfSupported().fileLockWait()
+        DB db = DBMaker.fileDB("MalisiousFirewallSSS.db").fileMmapEnableIfSupported().fileLockWait()
         .make();
         List<String> index = db.indexTreeList("SerialNo", Serializer.STRING).createOrOpen();
         List<String> dates = db.indexTreeList("dates", Serializer.STRING).createOrOpen(); 
@@ -42,7 +42,7 @@ public class FileChangeDectector {
         if(dates.size()==0 && index.size()<(tempLines.size()-5)){
             System.out.print("inside dates");
             db.close();
-            LogFetch log = new LogFetch();
+            LogFetch log = LogFetch.getInstance();
                    log.fetchLogs();
                    
         } 
@@ -66,7 +66,7 @@ public class FileChangeDectector {
                  Path eventPath = (Path)event.context();
                  System.out.println(kind+" "+eventPath.toString());
                  if(eventPath.toString().equals("pfirewall.log.txt")){
-                   LogFetch log = new LogFetch();
+                   LogFetch log = LogFetch.getInstance();
                    log.fetchLogs();
                  }
              }

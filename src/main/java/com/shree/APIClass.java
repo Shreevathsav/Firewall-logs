@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.annotation.WebServlet;
 
@@ -19,13 +19,11 @@ import com.google.gson.Gson;
 
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
-import org.mapdb.HTreeMap;
 import org.mapdb.Serializer;
 
 @WebServlet("/FirewallLogs")
 
 public class APIClass extends HttpServlet {
-    @SuppressWarnings("unchecked")
     synchronized public void service(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
         String currentPage = request.getParameter("currentPage");
@@ -35,7 +33,7 @@ public class APIClass extends HttpServlet {
         String filterValue = request.getParameter("filterValue");
         System.out.println(rcrdsPerPage);
 
-        DB db = DBMaker.fileDB("MalisiousFirewallnine.db").fileMmapEnableIfSupported().fileLockWait()
+        DB db = DBMaker.fileDB("MalisiousFirewallSSS.db").fileMmapEnableIfSupported().fileLockWait()
                 .make();
         System.out.println("done initializing");
         List<String> streamFlag = db.indexTreeList("stream", Serializer.STRING).createOrOpen();
@@ -47,11 +45,32 @@ public class APIClass extends HttpServlet {
         List<String> ipDestination = db.indexTreeList("Destination", Serializer.STRING).createOrOpen();
         HashMap<String, List<String>> firewallLogs = new HashMap<String, List<String>>();
         if (firstCall != null) {
-            List<String> asn = (List<String>) (Object) Arrays.asList(db.get("ASN"));
-            List<String> ipLogs = (List<String>) (Object) Arrays.asList(db.get("IP"));
-            List<String> hashes = (List<String>) (Object) Arrays.asList(db.get("Hashes"));
-            List<String> urls = (List<String>) (Object) Arrays.asList(db.get("url"));
-            List<String> domain = (List<String>) (Object) Arrays.asList(db.get("Domain"));
+            Map<Integer,String> asnMap = db.get("ASN");
+            Map<Integer,String> ipMap = db.get("IP");
+            Map<Integer,String> hashesMap = db.get("Hashes");
+            Map<Integer,String> urlMap = db.get("url");
+            Map<Integer,String> domainMap = db.get("Domain");
+            List<String> asn = new ArrayList<String>();
+            List<String> urls = new ArrayList<String>();
+            List<String> domain  = new ArrayList<String>();
+            List<String> hashes = new ArrayList<String>();
+            List<String> ipLogs = new ArrayList<String>();
+            for(int i : asnMap.keySet()){
+                asn.add(asnMap.get(i));
+            }
+            for(int i : ipMap.keySet()){
+                ipLogs.add(ipMap.get(i));
+            }
+            for(int i : urlMap.keySet()){
+                urls.add(urlMap.get(i));
+            }
+            for(int i : domainMap.keySet()){
+                domain.add(domainMap.get(i));
+            }
+            for(int i : hashesMap.keySet()){
+                hashes.add(hashesMap.get(i));
+            }
+
 
             firewallLogs.put("ASN", asn);
             firewallLogs.put("url", urls);
@@ -87,8 +106,12 @@ public class APIClass extends HttpServlet {
                 e.printStackTrace();
             }
             if (status.equals("200")) {
-                HTreeMap.KeySet<String> ipDBLogs = db.get("IP");
-                if (ipDBLogs == null) {
+                Map<Integer,String> ipDBLogsMap = db.get("IP");
+                ArrayList<String> ipDBLogs = new ArrayList<String>();
+                for(int i : ipDBLogsMap.keySet()){
+                ipDBLogs.add(ipDBLogsMap.get(i));
+                }
+                if (ipDBLogs.size()==0) {
                     ArrayList<String> stcode = new ArrayList<String>();
                     stcode.add("403");
 
@@ -115,12 +138,14 @@ public class APIClass extends HttpServlet {
                         firewallLogs.put("status", statusCode);
                     }
                     else{
+                        System.out.println(tempstart);
                         List<String> tempDates = dates.subList(tempstart, tempend);
                         List<String> tempTime = time.subList(tempstart, tempend);
                         List<String> tempipSource = ipSource.subList(tempstart, tempend);
                         List<String> tempiDestination = ipDestination.subList(tempstart, tempend);
                         List<String> flag = f.subList(tempstart, tempend);
                         System.out.println(tempipSource.size());
+                        System.out.println("curentPage "+currentPage);
                         int no_of_pages = tempipSource.size() / rcrdPerPage;
                         if (no_of_pages * rcrdPerPage < tempipSource.size()) {
                             no_of_pages = no_of_pages + 1;
