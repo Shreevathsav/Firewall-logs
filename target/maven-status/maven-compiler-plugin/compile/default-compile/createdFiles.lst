@@ -1,4 +1,5 @@
 com\shree\FileChangeDectector.class
+com\shree\GetStix.class
 com\shree\LogFetch.class
 com\shree\SingletonClass.class
 com\shree\BackgroundListner.class

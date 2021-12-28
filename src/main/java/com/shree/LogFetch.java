@@ -172,6 +172,7 @@ public class LogFetch {
         System.out.println("done adding flags");
         System.out.println("onchange"+streamFlag.size());
         db.close();
+        System.out.println("done1");
 
    } 
 }
