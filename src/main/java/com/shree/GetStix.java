@@ -381,7 +381,7 @@ private static Document convertStringToXMLDocument(String xmlString) {
  public void getStixx() {
      
     System.out.println("hi");
-    DB db = DBMaker.fileDB("Firewallprocessing.db").fileChannelEnable().fileLockDisable().checksumHeaderBypass().make();
+    DB db = DBMaker.fileDB("FirewallLogProcessing.db").fileChannelEnable().fileLockDisable().checksumHeaderBypass().make();
     IndexTreeList<Date> oldTime = db.indexTreeList("syncTime", Serializer.DATE).createOrOpen();
     long diff;
     if (oldTime != null && oldTime.size() > 0) {

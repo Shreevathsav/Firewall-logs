@@ -44,19 +44,6 @@ public class LogFetch {
    List<String> ipSource,
    List<String> ipDestination,ArrayList<String> ipDBLogs){
     System.out.println("inside fetch");
-    // DB db = DBMaker.fileDB("FirewallProcess.db").fileChannelEnable()
-    // .make();
-    // System.out.println("after db");
-    // index = db.indexTreeList("SerialNo", Serializer.STRING).createOrOpen();
-    // f = db.indexTreeList("maliciousFlag", Serializer.STRING).createOrOpen();
-    // dates = db.indexTreeList("dates", Serializer.STRING).createOrOpen();
-    // time = db.indexTreeList("time", Serializer.STRING).createOrOpen();
-    // ipSource = db.indexTreeList("Source", Serializer.STRING).createOrOpen();
-    // ipDestination = db.indexTreeList("Destination", Serializer.STRING).createOrOpen();
-    // streamFlag = db.indexTreeList("stream", Serializer.STRING).createOrOpen();
-    // streamFlag.add("added");
-    
-
     String zeroTo255 = "(\\d{1,2}|(0|1)\\" + "d{2}|2[0-4]\\d|25[0-5])";
         String IPV4_REGEX = zeroTo255 + "\\." + zeroTo255 + "\\." + zeroTo255 + "\\." + zeroTo255;
 
@@ -101,7 +88,7 @@ public class LogFetch {
                 Pattern timePattern = Pattern.compile(timeRegex);
                 String tempDate = null;
                 String tempTime = null;
-                int i = 0;
+                int i = ipSource.size();
                 for (String s : splited) {
                     System.out.println(s);
                     Matcher matcher1 = datePattern.matcher(s);
@@ -150,7 +137,10 @@ public class LogFetch {
                         System.out.println("E");
                     }
                 }
-                if (ipDBLogs.contains(ipSource.get(i)) || ipDBLogs.contains(ipDestination.get(i))) {
+                i = i + 1;
+                index.add(Integer.toString(i));
+
+                if (ipDBLogs.contains(ipSource.get(i-1)) || ipDBLogs.contains(ipDestination.get(i-1))) {
                     System.out.println("malisious");
                     f.add("1");
                     // sc.flagList.add("1");
@@ -158,9 +148,7 @@ public class LogFetch {
                     f.add("0");
                     // sc.flagList.add("0");
                 }
-                i = i + 1;
-                index.add(Integer.toString(i));
-
+                
             }
             fstream.close();
         } catch (Exception e) {

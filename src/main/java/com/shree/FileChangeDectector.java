@@ -27,7 +27,7 @@ public class FileChangeDectector {
     public void test() throws IOException{
         System.out.println("inside file change event");
        
-        DB db = DBMaker.fileDB("Firewallprocessing.db").fileChannelEnable().fileLockDisable().checksumHeaderBypass()
+        DB db = DBMaker.fileDB("FirewallLogProcessing.db").fileChannelEnable().fileLockDisable().checksumHeaderBypass()
     .make();
     System.out.println("after db");
     List<String> index = db.indexTreeList("SerialNo", Serializer.STRING).createOrOpen();
