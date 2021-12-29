@@ -12,6 +12,7 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,10 +27,21 @@ public class FileChangeDectector {
     public void test() throws IOException{
         System.out.println("inside file change event");
        
-        DB db = DBMaker.fileDB("MalisiousFirewallSSS.db").fileMmapEnableIfSupported().fileLockWait()
-        .make();
-        List<String> index = db.indexTreeList("SerialNo", Serializer.STRING).createOrOpen();
-        List<String> dates = db.indexTreeList("dates", Serializer.STRING).createOrOpen(); 
+        DB db = DBMaker.fileDB("Firewallprocessing.db").fileChannelEnable().fileLockDisable().checksumHeaderBypass()
+    .make();
+    System.out.println("after db");
+    List<String> index = db.indexTreeList("SerialNo", Serializer.STRING).createOrOpen();
+    List<String> f = db.indexTreeList("maliciousFlag", Serializer.STRING).createOrOpen();
+    List<String> dates = db.indexTreeList("dates", Serializer.STRING).createOrOpen();
+    List<String> time = db.indexTreeList("time", Serializer.STRING).createOrOpen();
+    List<String> ipSource = db.indexTreeList("Source", Serializer.STRING).createOrOpen();
+    List<String> ipDestination = db.indexTreeList("Destination", Serializer.STRING).createOrOpen();
+    List<String> streamFlag = db.indexTreeList("stream", Serializer.STRING).createOrOpen();
+    Map<Integer,String> ipDBLogsMap = db.get("IP");
+    ArrayList<String> ipDBLogs = new ArrayList<String>();
+    for(int i : ipDBLogsMap.keySet()){
+        ipDBLogs.add(ipDBLogsMap.get(i));
+    }
         FileInputStream fstream = new FileInputStream(
                     "C:\\Windows\\System32\\LogFiles\\Firewall\\pfirewall.log.txt");
 
@@ -41,18 +53,16 @@ public class FileChangeDectector {
             br.close();
         if(dates.size()==0 && index.size()<(tempLines.size()-5)){
             System.out.print("inside dates");
-            db.close();
+            streamFlag.add("added");
+           
             LogFetch log = LogFetch.getInstance();
-                   log.fetchLogs();
+                   log.fetchLogs(f,index,dates,time,ipSource,ipDestination,ipDBLogs);
                    
         } 
         else if(index.size()>(tempLines.size()-5)){
             index.clear();
-            db.close();
+            
         }
-        else{
-            db.close();
-        } 
              
     try(WatchService service = FileSystems.getDefault().newWatchService()) {
         Map<WatchKey, Path> keyMap = new HashMap<>();
@@ -66,13 +76,19 @@ public class FileChangeDectector {
                  Path eventPath = (Path)event.context();
                  System.out.println(kind+" "+eventPath.toString());
                  if(eventPath.toString().equals("pfirewall.log.txt")){
+                    streamFlag.add("added");
                    LogFetch log = LogFetch.getInstance();
-                   log.fetchLogs();
+                   log.fetchLogs(f,index,dates,time,ipSource,ipDestination,ipDBLogs);
                  }
              }
         }while(watchKey.reset());
     } catch (Exception e) {
 
+    }
+    finally {
+            
+        db.close();
+        
     }
 }
 }

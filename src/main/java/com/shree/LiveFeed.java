@@ -28,7 +28,7 @@ public class LiveFeed extends HttpServlet{
         response.setCharacterEncoding("UTF-8");
         PrintWriter printWriter = null;
             String status = null;
-            DB db = DBMaker.fileDB("MalisiousFirewallSSS.db").fileMmapEnableIfSupported().fileLockWait()
+            DB db = DBMaker.fileDB("Firewallprocessing.db").fileChannelEnable().checksumHeaderBypass().fileLockDisable()
             .make();
             List<String> f = db.indexTreeList("maliciousFlag", SerializerArray.STRING).createOrOpen();
             List<String> dates = db.indexTreeList("dates", Serializer.STRING).createOrOpen();

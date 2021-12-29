@@ -381,7 +381,7 @@ private static Document convertStringToXMLDocument(String xmlString) {
  public void getStixx() {
      
     System.out.println("hi");
-    DB db = DBMaker.fileDB("MalisiousFirewallSSS.db").fileMmapEnable().fileLockWait().make();
+    DB db = DBMaker.fileDB("Firewallprocessing.db").fileChannelEnable().fileLockDisable().checksumHeaderBypass().make();
     IndexTreeList<Date> oldTime = db.indexTreeList("syncTime", Serializer.DATE).createOrOpen();
     long diff;
     if (oldTime != null && oldTime.size() > 0) {
@@ -438,7 +438,6 @@ private static Document convertStringToXMLDocument(String xmlString) {
                     i=i+1;
                 }
                     
-
             }
             System.out.println("done adding them to db");
             
@@ -492,7 +491,6 @@ private static Document convertStringToXMLDocument(String xmlString) {
     // cache.put("hi", "hello2");
     // System.out.println(cache.get("hi"));
     // System.out.println(cache.get("hii"));
-
     db.close();
     System.out.println("db closed");
     System.out.println(FLAG);

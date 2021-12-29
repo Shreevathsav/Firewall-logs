@@ -5,22 +5,15 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+
 import java.util.regex.Pattern;
 
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
-import org.mapdb.Serializer;
+
 import java.util.regex.Matcher;
 
 public class LogFetch {
-    static List<String> index;
-    static List<String> f;
-    static List<String> dates;
-    static List<String> time;
-    static List<String> ipSource;
-    static List<String> ipDestination;
-    static List<String> streamFlag;
+   
+    
     private static LogFetch logFetch;
 
     private LogFetch(){
@@ -43,24 +36,26 @@ public class LogFetch {
     }
     return logFetch;
   }
-   public void fetchLogs(){
+ 
+   public void fetchLogs( List<String> f,
+   List<String> index,
+   List<String> dates,
+   List<String> time,
+   List<String> ipSource,
+   List<String> ipDestination,ArrayList<String> ipDBLogs){
     System.out.println("inside fetch");
-    DB db = DBMaker.fileDB("MalisiousFirewallSSS.db").fileMmapEnableIfSupported().fileLockWait()
-    .make();
-    System.out.println("after db");
-    index = db.indexTreeList("SerialNo", Serializer.STRING).createOrOpen();
-    f = db.indexTreeList("maliciousFlag", Serializer.STRING).createOrOpen();
-    dates = db.indexTreeList("dates", Serializer.STRING).createOrOpen();
-    time = db.indexTreeList("time", Serializer.STRING).createOrOpen();
-    ipSource = db.indexTreeList("Source", Serializer.STRING).createOrOpen();
-    ipDestination = db.indexTreeList("Destination", Serializer.STRING).createOrOpen();
-    streamFlag = db.indexTreeList("stream", Serializer.STRING).createOrOpen();
-    streamFlag.add("added");
-    Map<Integer,String> ipDBLogsMap = db.get("IP");
-    ArrayList<String> ipDBLogs = new ArrayList<String>();
-    for(int i : ipDBLogsMap.keySet()){
-        ipDBLogs.add(ipDBLogsMap.get(i));
-    }
+    // DB db = DBMaker.fileDB("FirewallProcess.db").fileChannelEnable()
+    // .make();
+    // System.out.println("after db");
+    // index = db.indexTreeList("SerialNo", Serializer.STRING).createOrOpen();
+    // f = db.indexTreeList("maliciousFlag", Serializer.STRING).createOrOpen();
+    // dates = db.indexTreeList("dates", Serializer.STRING).createOrOpen();
+    // time = db.indexTreeList("time", Serializer.STRING).createOrOpen();
+    // ipSource = db.indexTreeList("Source", Serializer.STRING).createOrOpen();
+    // ipDestination = db.indexTreeList("Destination", Serializer.STRING).createOrOpen();
+    // streamFlag = db.indexTreeList("stream", Serializer.STRING).createOrOpen();
+    // streamFlag.add("added");
+    
 
     String zeroTo255 = "(\\d{1,2}|(0|1)\\" + "d{2}|2[0-4]\\d|25[0-5])";
         String IPV4_REGEX = zeroTo255 + "\\." + zeroTo255 + "\\." + zeroTo255 + "\\." + zeroTo255;
@@ -89,6 +84,7 @@ public class LogFetch {
                 skip = 5 + index.size();
             }
             System.out.println("skip " + skip);
+            System.out.println(ipDBLogs);
             br.close();
             List<String> str = tempLines.subList(skip, tempLines.size());
             System.out.println(str);
@@ -155,6 +151,7 @@ public class LogFetch {
                     }
                 }
                 if (ipDBLogs.contains(ipSource.get(i)) || ipDBLogs.contains(ipDestination.get(i))) {
+                    System.out.println("malisious");
                     f.add("1");
                     // sc.flagList.add("1");
                 } else {
@@ -170,8 +167,7 @@ public class LogFetch {
             System.err.println("Error: " + e.getMessage());
         }
         System.out.println("done adding flags");
-        System.out.println("onchange"+streamFlag.size());
-        db.close();
+        System.out.println("onchange"+time.size());
         System.out.println("done1");
 
    } 

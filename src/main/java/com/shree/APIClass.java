@@ -33,7 +33,7 @@ public class APIClass extends HttpServlet {
         String filterValue = request.getParameter("filterValue");
         System.out.println(rcrdsPerPage);
 
-        DB db = DBMaker.fileDB("MalisiousFirewallSSS.db").fileMmapEnableIfSupported().fileLockWait()
+        DB db = DBMaker.fileDB("Firewallprocessing.db").fileChannelEnable().fileLockDisable().checksumHeaderBypass()
                 .make();
         System.out.println("done initializing");
         List<String> streamFlag = db.indexTreeList("stream", Serializer.STRING).createOrOpen();
